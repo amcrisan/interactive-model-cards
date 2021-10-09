@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+streamlit = "*"
+pandas = "*"
+numpy = "*"
+
+[dev-packages]
+black = "==19.3b0"
+pylint = "*"
+watchdog = "*"
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+format = "black ."
+format_check = "black --check ."
+lint = "pylint textmisc"
+app= "streamlit run first_app.py"

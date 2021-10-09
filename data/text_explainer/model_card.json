@@ -1,0 +1,44 @@
+{
+    "model-details":{
+        "name": "Model Details",
+        "short": [
+            "This model, distilbert-base-uncased-finetuned-sst-2-english,  is a fine-tune checkpoint of DistilBERT-base-uncased [1],trained using the SST-2 [2]. ",
+            "This model is uncased meaning  it does not make a difference between the words `english’, `English’, and `ENGLISH‘"
+        ],
+        "extended": "SOME EXPANDED TEXT"
+    },
+    "intended-use":{
+        "name": "Intended Use",
+        "short": [
+            "This model is primarily aimed at classifying whether sentences have an overall positive or negative sentiment"
+        ],
+        "extended": "SOME EXPANDED TEXT"
+    },
+    "ethical-considerations":{
+        "name": "Ethical Considerations",
+        "short": [
+            "Even if the training data used for this model could be characterized as fairly neutral, this model can have biased predictions. It also inherits some of the bias of the  BERT base model and DistilBERT-base-uncased"
+        ],
+        "extended": "SOME EXPANDED TEXT"
+    },
+    "training":{
+        "name": "Model Training",
+        "short": [
+            "DistilBERT-base-uncased  Data :  BookCorpus [4] , a dataset consisting of 11,038 unpublished books and English Wikipedia [5]",
+            "distilbert-base-uncased-finetuned-sst-2-english Data : The  SST-2 dataset contains 215,154 phrases with sentiment labels in the parse trees of 11,855 sentences from movie reviews."
+        ],
+        "extended": "SOME EXPANDED TEXT"
+    },
+    "references":{
+        "name": "References",
+        "short": [
+            "[1] Victor Sanh, Lysandre Debut, Julien Chaumond, Thomas Wolf.  DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter. (2019)",
+            "[2]  Richard Socher, Alex Perelygin, Jean Wu, Jason Chuang, Christopher D. Manning, Andrew Ng, Christopher Potts. Recursive Deep Models for Semantic Compositionality Over a Sentiment Treebank. (2013)",
+            "[3]  Jacob Devlin, Ming-Wei Chang, Kenton Leem, Kristina Toutanova. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. (2018)",
+            "[4] https://yknzhu.wixsite.com/mbweb",
+            "[5] https://en.wikipedia.org/wiki/English_Wikipedia",
+            "[6] Alex Wang , Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, Samuel R. Bowman. GLUE: A MULTI-TASK BENCHMARK AND ANALYSIS PLATFORM FOR NATURAL LANGUAGE UNDERSTANDING (2019)"
+        ],
+        "extended": null
+    }
+}
