@@ -20,6 +20,7 @@ watchdog = "*"
 nltk = "*"
 numpy = "*"
 jupyterlab = "*"
+jupyter = "*"
 
 [requires]
 python_version = "3.8"
@@ -27,6 +28,7 @@ python_version = "3.8"
 [scripts]
 format = "black ."
 format_check = "black --check ."
-lint = "pylint textmisc"
+lint = "pylint app.py"
 app= "streamlit run app.py"
 clear_cache = "streamlit cache clear"
+notebook = "jupyter notebook"
