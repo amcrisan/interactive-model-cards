@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import json
+from math import floor
 
 # Robustness Gym and Analysis
 import robustnessgym as rg
@@ -24,13 +25,12 @@ def load_model_card():
     return mc_text
 
 
-# robusntess gym from hugging face
+# pre-computed robusntess gym dev bench
 @st.experimental_singleton
 def load_data():
     # load dev bench
     devBench = rg.DevBench.load("./assets/data/rg/sst_db.devbench")
     return devBench
-
 
 # load model
 @st.experimental_singleton
@@ -49,6 +49,56 @@ def load_basic():
     model = load_model()
     return devBench, model
 
+
+#updating a prediction
+
+def update_pred(dp,model):
+    ''' Updating data panel with model prediction'''
+
+    model.predict_batch(dp, ["sentence"])
+    dp = dp.update(
+            lambda x: model.predict_batch(x, ["sentence"]),
+            batch_size=4,
+            is_batched_fn=True,
+            pbar=True,
+    )
+
+    labels = pd.Series(['Negative Sentiment','Positive Sentiment'])
+    probs = pd.Series(dp.__dict__["_data"]["probs"][0])
+    
+    pred = pd.concat([labels, probs], axis=1)
+    pred.columns = ['Label','Probability']
+
+
+    return(dp, pred)
+
+def conf_level(val):
+        ''' Translates probability value into
+        a plain english statement '''
+        #https://www.dni.gov/files/documents/ICD/ICD%20203%20Analytic%20Standards.pdf
+        conf = 'undefined'
+        print(val)
+        if val < 0.05:
+            conf= 'Extremely Low Probability'
+        elif val >=0.05 and val <0.20:
+            conf = "Very Low Probability"
+        elif val >=0.20 and val <0.45:
+            conf = "Low Probability"
+        elif val >=0.45 and val <0.55:
+            conf = "Middling Probability"
+        elif val >=0.55 and val <0.80:
+            conf = "High  Probability"
+        elif val >=0.80 and val <0.95:
+            conf = "Very High Probability"
+        elif val >=0.95:
+            conf = "Extremely High Probability"
+        
+        return(conf)
+    
+
+def add_slice(bench,slice):
+    ''' Add a slice to the dev bench'''
+    return(bench.add_slices([slice]))
 
 ### STREAMLIT APP CONGFIG ###
 st.set_page_config(layout="wide", page_title="Interactive Model Card")
@@ -76,7 +126,27 @@ st.write(
             border-style:none
     }
 
+    /* Radio Button Direction*/
     div.row-widget.stRadio > div{flex-direction:row;}
+
+    /* Expander Boz*/
+    .streamlit-expander {
+        border-width: 0px;
+        border-bottom: 1px solid #A29C9B;
+        border-radius: 0px;
+    }
+
+    .streamlit-expanderHeader {
+        font-style: italic;
+        font-weight :600;
+        padding-top:0px;
+        padding-left: 0px;
+        color:#A29C9B
+
+    /* Section Headers */
+    .sectionHeader {
+        font-size:10px;
+    }
     </style>
 """,
     unsafe_allow_html=True,
@@ -103,7 +173,8 @@ with st.sidebar.expander("more details"):
 
 
 # ******* quantaitive analysis
-st.markdown("""**Quantaitive Analysis**""")
+st.write("""<h1 style="font-size:20px"> Quantaitive Examples</h1>""", unsafe_allow_html=True)
+
 quant_lcol, quant_rcol = st.columns([6, 6])
 
 with quant_lcol:
@@ -113,10 +184,12 @@ with quant_rcol:
 
 
 # ******* Example Layout
-with st.expander("Add your own examples", expanded=True):
+st.write("""<h1 style="font-size:20px;padding-top:0px;"> Additional Examples</h1>""", unsafe_allow_html=True)
+
+with st.expander("Add your own examples to test the model on!", expanded=True):
     data_src = st.radio(
         "Select Example Source",
-        ["Text Example", "From Training Data", "From Your Data"],
+        ["Text Example   ", "From Training Data   ", "From Your Data   "],
     )
     st.markdown("""---""")
 
@@ -132,23 +205,35 @@ with st.expander("Add your own examples", expanded=True):
         exp_mid.write("Loading your own data 2")
         exp_rcol.write("Loading your own data 3")
     else:
-        user_text = exp_lcol.text_input(
-            "Add your own example text", "I like you. I love you"
-        )
+        #adding a column for user text input
+        with exp_lcol:
+            user_text = st.text_input(
+                "Write your own example sentences", "I like you. I love you"
+            )
 
-        # adding user data to the data panel
-        dp2 = rg.DataPanel({"sentence": [user_text], "label": [1]})
-        dp2._identifier = f"User Input - {user_text}"
+            # adding user data to the data panel
+            dp = rg.DataPanel({"sentence": [user_text], "label": [1]})
+            dp._identifier = f"User Input - {user_text}"
 
-        # run prediction
-        model.predict_batch(dp2, ["sentence"])
-        dp2 = dp2.update(
-            lambda x: model.predict_batch(x, ["sentence"]),
-            batch_size=4,
-            is_batched_fn=True,
-            pbar=True,
-        )
+            # run prediction
+            dp, pred = update_pred(dp,model)
+        
+            #summarizing the prediction
+            st.markdown("**Model Prediction Summary**")
+            idx_max = pred['Probability'].argmax()
+            pred_sum = pred['Label'][idx_max]
+            pred_num = floor(pred['Probability'][idx_max] * 10 ** 3) / 10 ** 3
+            pred_conf = conf_level(pred['Probability'][idx_max])
 
-        sst_db.add_slices([dp2])
+            st.markdown(f"*The sentiment model predicts that this sentence has an overall `{pred_sum}` with an `{pred_conf}` (p={pred_num})*")
+            
+            #prediction agreement solicitation
+            st.markdown("**Do you agree with the prediction?**")
+            agreement = st.radio( "Indicate your agreement below", [f"Agree", "Disagree"])
+            st.write(f"You `{agreement}` with the models prediction of `{pred_sum}`")
 
+            #add example as slice
+           # st.button('Add Example',on_click = add_slice(sst_db,dp))            
+        
+        #writing the metrics out to a column
         exp_mid.write(sst_db.metrics)
