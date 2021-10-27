@@ -14,9 +14,12 @@ import streamlit as st
 import altair as alt
 from streamlit_vega_lite import altair_component
 
+#utils
+import utils as ut
+from random import sample
+
 
 ### LOADING DATA ###
-
 # model card data
 @st.experimental_memo
 def load_model_card():
@@ -26,7 +29,7 @@ def load_model_card():
 
 
 # pre-computed robusntess gym dev bench
-@st.experimental_singleton
+#@st.experimental_singleton
 def load_data():
     # load dev bench
     devBench = rg.DevBench.load("./assets/data/rg/sst_db.devbench")
@@ -41,6 +44,14 @@ def load_model():
     return model
 
 
+
+@st.experimental_memo
+def load_examples():
+    with open("./assets/data/user_data/example_sentence.json") as f:
+        examples = json.load(f)
+    return examples
+
+
 # loading the dataset
 def load_basic():
     # load data
@@ -50,107 +61,13 @@ def load_basic():
     return devBench, model
 
 
-#updating a prediction
-
-def update_pred(dp,model):
-    ''' Updating data panel with model prediction'''
-
-    model.predict_batch(dp, ["sentence"])
-    dp = dp.update(
-            lambda x: model.predict_batch(x, ["sentence"]),
-            batch_size=4,
-            is_batched_fn=True,
-            pbar=True,
-    )
-
-    labels = pd.Series(['Negative Sentiment','Positive Sentiment'])
-    probs = pd.Series(dp.__dict__["_data"]["probs"][0])
-    
-    pred = pd.concat([labels, probs], axis=1)
-    pred.columns = ['Label','Probability']
-
-
-    return(dp, pred)
-
-def conf_level(val):
-        ''' Translates probability value into
-        a plain english statement '''
-        #https://www.dni.gov/files/documents/ICD/ICD%20203%20Analytic%20Standards.pdf
-        conf = 'undefined'
-        print(val)
-        if val < 0.05:
-            conf= 'Extremely Low Probability'
-        elif val >=0.05 and val <0.20:
-            conf = "Very Low Probability"
-        elif val >=0.20 and val <0.45:
-            conf = "Low Probability"
-        elif val >=0.45 and val <0.55:
-            conf = "Middling Probability"
-        elif val >=0.55 and val <0.80:
-            conf = "High  Probability"
-        elif val >=0.80 and val <0.95:
-            conf = "Very High Probability"
-        elif val >=0.95:
-            conf = "Extremely High Probability"
-        
-        return(conf)
-    
-
-def add_slice(bench,slice):
-    ''' Add a slice to the dev bench'''
-    return(bench.add_slices([slice]))
-
 ### STREAMLIT APP CONGFIG ###
 st.set_page_config(layout="wide", page_title="Interactive Model Card")
 
-# page style with a slightly scary hack
-st.write(
-    """
-    <style>
-    /* Side Bar */
-    .css-1outpf7 {
-        background-color:rgb(246 240 240);
-        width:40rem;
-        padding:10px 10px 10px 10px;
-    }
-    /* Main Panel*/
-    .css-18e3th9 {
-        padding:10px 10px 10px 10px;
-    }
-    .css-1ubw6au:last-child{
-        background-color:lightblue;
-    }
+#import custom styling
+ut.init_style()
 
-    /* Model Panels : element-container */
-    .element-container{
-            border-style:none
-    }
 
-    /* Radio Button Direction*/
-    div.row-widget.stRadio > div{flex-direction:row;}
-
-    /* Expander Boz*/
-    .streamlit-expander {
-        border-width: 0px;
-        border-bottom: 1px solid #A29C9B;
-        border-radius: 0px;
-    }
-
-    .streamlit-expanderHeader {
-        font-style: italic;
-        font-weight :600;
-        padding-top:0px;
-        padding-left: 0px;
-        color:#A29C9B
-
-    /* Section Headers */
-    .sectionHeader {
-        font-size:10px;
-    }
-    </style>
-""",
-    unsafe_allow_html=True,
-)
 
 ### STREAMLIT APP LAYOUT###
 # ******* side bar setup
@@ -159,81 +76,159 @@ st.sidebar.title("Interactive Model Card")
 # load model card data
 model_card = load_model_card()
 
+
+# model card side panel
+for key in model_card.keys():
+    item = model_card[key]
+    st.sidebar.markdown(f"**{model_card[key]['name']}**")
+    st.sidebar.write(f"{model_card[key]['short'][0]}")
+
+    with st.sidebar.expander("more details"):
+        for detail in model_card[key]['short']:
+            st.markdown(f"* {detail}")
+
+#loading the mode and the data
 with st.spinner():
     sst_db, model = load_basic()
 
-
-# side panel
-st.sidebar.markdown(f"**{model_card['model-details']['name']}**")
-st.sidebar.write(f"{model_card['model-details']['short'][0]}")
-
-with st.sidebar.expander("more details"):
-    st.markdown(f"*{model_card['model-details']['short'][0]}")
-    st.markdown(f"*{model_card['model-details']['short'][1]}")
+#load example sentences
+sentence_examples = load_examples()
 
 
-# ******* quantaitive analysis
-st.write("""<h1 style="font-size:20px"> Quantaitive Examples</h1>""", unsafe_allow_html=True)
+# ******* QUANTITATIVE DATA PANEL ******* 
+st.write("""<h1 style="font-size:20px"> Quantitative Examples</h1>""", unsafe_allow_html=True)
 
 quant_lcol, quant_rcol = st.columns([6, 6])
 
 with quant_lcol:
-    st.write(sst_db.metrics)
+    #st.write(sst_db.metrics)
+    st.write("Left Column")
 with quant_rcol:
     st.write("Right Column")
 
 
-# ******* Example Layout
+# ******* USER EXAMPLE DATA PANEL ******* 
+st.markdown("---")
 st.write("""<h1 style="font-size:20px;padding-top:0px;"> Additional Examples</h1>""", unsafe_allow_html=True)
 
+#EXAMPLE SESSIONS VARIABLES
+if 'user_data' not in st.session_state:
+    st.session_state['user_data'] = pd.DataFrame()
+if 'example_sent' not in st.session_state:
+    st.session_state['example_sent'] = sample(set(sentence_examples['sentences']),1)
+    
+
+# Data Expander
 with st.expander("Add your own examples to test the model on!", expanded=True):
-    data_src = st.radio(
+    data_src = st.selectbox(
         "Select Example Source",
-        ["Text Example   ", "From Training Data   ", "From Your Data   "],
+        ["Text Example", "From Training Data", "From Your Data"],
     )
-    st.markdown("""---""")
+    #Title
+    title = "Add your own sentences as Examples"
+    if data_src == "From Training Data":
+        title = "Create New Susbsets from the Training Data"
+    elif data_src == "From Your Data":
+        title = "Load your own Data Set"
 
-    exp_lcol, exp_mid, exp_rcol = st.columns([5, 5, 2])
+    st.markdown(f"** {title} **")
 
+
+    #layouts for the expander
+    exp_lcol, exp_rcol = st.columns([5, 7])
+
+    # Layouts for lcol
     if data_src == "From Training Data":
         exp_lcol.write("You training data")
-        exp_mid.write("You training data 2")
-        exp_rcol.write("You training data 3")
 
     elif data_src == "From Your Data":
         exp_lcol.write("Loading your own data")
-        exp_mid.write("Loading your own data 2")
-        exp_rcol.write("Loading your own data 3")
     else:
         #adding a column for user text input
+       
         with exp_lcol:
             user_text = st.text_input(
-                "Write your own example sentences", "I like you. I love you"
+                "Write your own example sentences, or click 'Generate Examples Button'", f"{st.session_state['example_sent'][0]}",
+                key="user_text"
             )
+            #update the example
+            if st.button("Generate New Example"):
+                st.session_state['example_sent']= sample(set(sentence_examples['sentences']),1)
+            if user_text !="":
+                # adding user data to the data panel
+                dp = rg.DataPanel({"sentence": [user_text], "label": [1]})
+                dp._identifier = f"User Input - {user_text}"
 
-            # adding user data to the data panel
-            dp = rg.DataPanel({"sentence": [user_text], "label": [1]})
-            dp._identifier = f"User Input - {user_text}"
-
-            # run prediction
-            dp, pred = update_pred(dp,model)
-        
-            #summarizing the prediction
-            st.markdown("**Model Prediction Summary**")
-            idx_max = pred['Probability'].argmax()
-            pred_sum = pred['Label'][idx_max]
-            pred_num = floor(pred['Probability'][idx_max] * 10 ** 3) / 10 ** 3
-            pred_conf = conf_level(pred['Probability'][idx_max])
-
-            st.markdown(f"*The sentiment model predicts that this sentence has an overall `{pred_sum}` with an `{pred_conf}` (p={pred_num})*")
+                # run prediction
+                dp, pred = ut.update_pred(dp,model)
             
-            #prediction agreement solicitation
-            st.markdown("**Do you agree with the prediction?**")
-            agreement = st.radio( "Indicate your agreement below", [f"Agree", "Disagree"])
-            st.write(f"You `{agreement}` with the models prediction of `{pred_sum}`")
+                #summarizing the prediction
+               
+                idx_max = pred['Probability'].argmax()
+                pred_sum = pred['Label'][idx_max]
+                pred_num = floor(pred['Probability'][idx_max] * 10 ** 3) / 10 ** 3
+                pred_conf = ut.conf_level(pred['Probability'][idx_max])
+                
+                with st.form(key="my_form"):
+                    st.markdown("**Model Prediction Summary**")
+                    st.markdown(f"*The sentiment model predicts that this sentence has an overall `{pred_sum}` with an `{pred_conf}` (p={pred_num})*")
+                    
+                    #prediction agreement solicitation
+                    st.markdown("**Do you agree with the prediction?**")
+                    agreement = st.radio( "Indicate your agreement below", [f"Agree", "Disagree"])
+                    st.write(f"You `{agreement}` with the models prediction of `{pred_sum}`")
 
-            #add example as slice
-           # st.button('Add Example',on_click = add_slice(sst_db,dp))            
-        
+                    #getting the user label
+                    user_lab = pred_sum
+                    user_lab_bin = round(pred_num)
+                    if agreement != "Agree":
+                        user_lab = "Negative Sentiment" if pred_sum =="Positive Sentiment" else "Positive Sentiment"
+                        user_lab_bin = int(0) if user_lab_bin == 1 else int(1)
+
+
+                    #update robustness gym with user_example prediction
+                    if st.form_submit_button('Add to Example Sentences'):
+                        #updating the user data frame
+                        if user_text !="":
+                            new_example = pd.DataFrame({
+                                'sentence': user_text,
+                                'model label':pred_sum,
+                                'user label': user_lab,
+                                'user label binary': user_lab_bin,
+                                'probability':pred_num
+                            },index=[0])
+
+                            #update the session
+                            st.session_state['user_data']  = st.session_state['user_data'].append(new_example, ignore_index=True)
+
+                    
+                
         #writing the metrics out to a column
-        exp_mid.write(sst_db.metrics)
+        with exp_rcol:
+            st.markdown("** Custom Example Sentences **")
+            
+            if not st.session_state['user_data'].empty:
+                #remove the user data slice
+                #ut.remove_slice(sst_db,"RGDataset")
+
+                #add the latest user data slice
+                table = st.session_state['user_data'][['sentence','probability','user label binary',]]
+                table.columns = ['sentence','label','pred']
+
+                dp = rg.DataPanel({
+                'sentence':table['sentence'].tolist(),
+                'label':table['pred'].tolist(),
+                'pred': table['label'].round().tolist()})
+
+                #st.write(dp)
+                sst_db.add_slices(dp)
+                st.write(sst_db.metrics)
+
+
+            
+            #vis_tab = st.session_state['user_data'][['sentence','model label','user label', 'probability']]
+            #smol_lcol,smol_rcol = st.columns([3,3])
+            st.table(st.session_state['user_data'])
+
+
+                
