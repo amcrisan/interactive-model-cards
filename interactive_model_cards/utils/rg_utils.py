@@ -82,3 +82,20 @@ def add_slice(bench,table,model, slice_name="user_data"):
     #bench.add_slices([dp])
     return(dp)
     #eturn(pred)
+
+def new_bench():
+    """ Create new rg dev bench"""
+    bench = rg.DevBench()
+    bench.add_aggregators({
+    # Every model can be associated with custom metric calculation functions
+    #'distilbert-base-uncased-finetuned-sst-2-english': {
+    'model':{
+        # This function uses the predictions we stored earlier to calculate accuracy
+        #'accuracy': lambda dp: (dp['label'].round() == dp['pred'].numpy()).mean()
+        #'f1' : lambda dp: f1_score(dp['label'].round(),dp['pred'],average='macro',zero_division=1),
+        'recall': lambda dp: recall_score(dp['label'].round(),dp['pred'],average='macro',zero_division=1),
+        'precision': lambda dp: precision_score(dp['label'].round(),dp['pred'],average='macro',zero_division=1),
+        'accuracy' : lambda dp: accuracy_score(dp['label'].round(),dp['pred'])
+    }
+    })
+    return(bench)
