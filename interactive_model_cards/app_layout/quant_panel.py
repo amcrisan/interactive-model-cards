@@ -8,12 +8,14 @@ def quant_panel(sst_db):
 
     quant_lcol, quant_rcol = st.columns([6, 6])
 
+    all_metrics = {}
     with quant_lcol:
-        st.markdown("Overall Performance")
-        chart = ut.visualize_metrics(sst_db.metrics['model'], max_width = 100)
-        st.altair_chart(chart)
+        for key in st.session_state['quant_ex']:
+            #all_metrics[key] = st.session_state['quant_ex'][key]
+            st.markdown("Overall Performance")
+            chart = ut.visualize_metrics(sst_db.metrics['model'], max_width = 100)
+            #st.markdown(f"{key}")
+    st.altair_chart(chart)
 
-        st.markdown("Custom Subset performance")
-
-    with quant_rcol:
-        st.write("Right Column")
+       
+    quant_rcol.write("Right Column")

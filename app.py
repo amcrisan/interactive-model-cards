@@ -84,7 +84,11 @@ if __name__ == "__main__":
     if 'user_data' not in st.session_state:
         st.session_state['user_data'] = pd.DataFrame()
     if 'example_sent' not in st.session_state:
-        st.session_state['example_sent'] = sample(set(sentence_examples['sentences']),1)
+        st.session_state['example_sent'] = "I like you. I love you"
+    if 'quant_ex' not in st.session_state:
+        st.session_state['quant_ex'] = {
+            'Overall Performance' : sst_db.metrics['model']
+        }
     #if 'user_bench' not in st.session_state:
     #    st.session_state['user_bench'] = ut.new_bench()
 
@@ -106,7 +110,6 @@ if __name__ == "__main__":
     st.write("""<h1 style="font-size:20px;padding-top:0px;"> Additional Examples</h1>""", unsafe_allow_html=True)
 
     al.example_panel(sentence_examples,model)
-
 
 
                 
