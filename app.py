@@ -85,8 +85,8 @@ if __name__ == "__main__":
         st.session_state['user_data'] = pd.DataFrame()
     if 'example_sent' not in st.session_state:
         st.session_state['example_sent'] = sample(set(sentence_examples['sentences']),1)
-    if 'user_bench' not in st.session_state:
-        st.session_state['user_bench'] = ut.new_bench()
+    #if 'user_bench' not in st.session_state:
+    #    st.session_state['user_bench'] = ut.new_bench()
 
 
     ### STREAMLIT APP LAYOUT###

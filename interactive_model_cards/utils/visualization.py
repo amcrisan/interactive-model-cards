@@ -16,7 +16,6 @@ def visualize_metrics(metrics,max_width = 150):
         
         #get individual metrics
         for mt in tmp.keys():
-            print(mt)
             metric_types = metric_types + [mt]
             metric_values = metric_values + [tmp[mt]]
 
