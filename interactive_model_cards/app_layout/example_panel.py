@@ -184,24 +184,31 @@ def subpopulation_slice(col,sst_db):
         with st.form(key="subpop_form"):
             st.markdown("Define you subpopulation")
             user_terms = st.text_input("Enter a set of comma separated words","comedy, hilarious, clown")
+            slice_choice = st.selectbox("Choose Data Source", ["Training Data","Test Data"])
             slice_name = st.text_input("Give your subpopulation a name","supbob_1")
             if st.form_submit_button("Create Subpopulation"):
                 #build a new slice
                 #
                 user_terms = [x.strip() for x in user_terms.split(',')]
                 slice_builder = rg.HasAnyPhrase([user_terms], identifiers=[slice_name])
-                #sst_db(slice_builder, sst_test,['sentence'])
                 
-
+                #on test data
+                sst_db(slice_builder, list(sst_db.slices)[0],['sentence'])
+                
                 #return terms
                 return(user_terms)
 
 def slice_vis(col,terms,sst_db):
     with col:
         st.write(terms)
-        st.write(sst_db)
+        #TO DO - FORMATTING AND ADD METRICS
+        if len(list(sst_db.slices))>2:
+            #write out the dataset for this subset
+            st.write(list(sst_db.slices)[2][['sentence','label']])
 
-# ***** PANEL UI *******
+
+
+# ***** EXAMPLE PANEL UI *******    
 
 def example_panel(sentence_examples, model,sst_db):
     """ Layout for the custom example panel"""
@@ -214,19 +221,30 @@ def example_panel(sentence_examples, model,sst_db):
 
         data_src = exp_lcol.selectbox(
             "Select Example Source",
-            ["Text Example", "From Training Data", "From Your Data"],
+            ["Help","Text Example", "From Model Data", "From Your Data"],
         )
         # Title
         title = "Add your own sentences as Examples"
-        if data_src == "From Training Data":
-            title = "Create New Susbsets from the Training Data"
+        if data_src == "From Model Data":
+            title = "Create new subset's from the model's data"
         elif data_src == "From Your Data":
             title = "Load your own Data Set"
+        elif data_src == "Text Example":
+            title = "Add a Text Example"
+        elif data_src == "Help":
+            title = "Help"
 
         exp_lcol.markdown(f"** {title} **")
 
         # Layouts for lcol
-        if data_src == "From Training Data":
+        if data_src == "Help":
+            with exp_lcol:
+                st.markdown("Here's an overview of the ways you can add customized the performance results. Using the drop down menu above, you can choose from one of three options")
+                st.markdown("1. **Text Example** : Add your own sentences as examples")
+                st.markdown("2. **From Model Data** : Create a new subset from the model's training or testing data")
+                st.markdown("3. **From your Data** : Upload your own (small) dataset from a csv file")
+
+        elif data_src == "From Model Data":
             slice_terms = subpopulation_slice(exp_lcol,sst_db)
             slice_vis(exp_rcol,slice_terms,sst_db)
 
