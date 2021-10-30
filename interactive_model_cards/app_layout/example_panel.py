@@ -190,7 +190,7 @@ def subpopulation_slice(col,sst_db):
                 #
                 user_terms = [x.strip() for x in user_terms.split(',')]
                 slice_builder = rg.HasAnyPhrase([user_terms], identifiers=[slice_name])
-                sst_db(slice_builder, sst_test,['sentence'])
+                #sst_db(slice_builder, sst_test,['sentence'])
                 
 
                 #return terms
