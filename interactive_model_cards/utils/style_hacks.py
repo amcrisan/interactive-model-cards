@@ -3,9 +3,10 @@
 """
 import streamlit as st
 
+
 def init_style():
-    return(st.write(
-    """
+    return st.write(
+        """
     <style>
     /* Side Bar */
     .css-1outpf7 {
@@ -54,6 +55,5 @@ def init_style():
     }
     </style>
 """,
-    unsafe_allow_html=True,
-))
-
+        unsafe_allow_html=True,
+    )
