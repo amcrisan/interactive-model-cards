@@ -19,7 +19,6 @@ from interactive_model_cards import utils as ut
 from interactive_model_cards import app_layout as al
 from random import sample
 
-
 ### LOADING DATA ###
 # model card data
 @st.experimental_memo

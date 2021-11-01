@@ -210,7 +210,7 @@ def slice_vis(col,terms,sst_db):
 
 # ***** EXAMPLE PANEL UI *******    
 
-def example_panel(sentence_examples, model,sst_db):
+def example_panel(sentence_examples,model,sst_db):
     """ Layout for the custom example panel"""
 
     # Data Expander
