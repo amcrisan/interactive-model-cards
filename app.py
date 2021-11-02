@@ -12,7 +12,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 # App & Visualization
 import streamlit as st
 import altair as alt
-from streamlit_vega_lite import altair_component
 
 # utils
 from interactive_model_cards import utils as ut

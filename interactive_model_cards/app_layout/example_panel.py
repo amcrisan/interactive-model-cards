@@ -83,13 +83,13 @@ def examples(col):
             all_metrics[key]["source"] = key
 
             #chart = ut.visualize_metrics(st.session_state["quant_ex"]["User Custom Sentence"])
-            chart = ut.visualize_metrics(all_metrics)
-            st.altair_chart(chart, use_container_width=True)
+            chart = ut.visualize_metrics(all_metrics,col_val= "#ff7f0e")
+            st.altair_chart(chart)
 
             # add to overall model performance
             # visualize examples
             st.markdown("*Examples*")
-            st.table(
+            st.dataframe(
                 st.session_state["user_data"][
                     ["sentence", "model label", "user label", "probability"]
                 ]

@@ -4,4 +4,4 @@ This is an experimental project that examines whether interactivity can augment 
 
 This is a currently a work in progress. The most current version of our interactive model card can be accessed at : 
 
-[https://share.streamlit.io/amcrisan/interactive-model-cards/main/app.py](https://share.streamlit.io/amcrisan/interactive-model-cards/main/app.py)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/amcrisan/interactive-model-cards/main/app.py)
