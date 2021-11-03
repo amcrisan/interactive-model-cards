@@ -1,6 +1,13 @@
+#streamlit
 import streamlit as st
-from interactive_model_cards import utils as ut
 from streamlit_vega_lite import altair_component
+
+#data
+import pandas as pd
+
+#utils
+from numpy import round
+from interactive_model_cards import utils as ut
 
 
 def quant_panel(sst_db):
@@ -10,7 +17,7 @@ def quant_panel(sst_db):
         unsafe_allow_html=True,
     )
 
-    quant_lcol, quant_rcol = st.columns([8, 4])
+    quant_lcol, quant_rcol = st.columns([6, 6])
 
     all_metrics = {}
     with quant_lcol:
@@ -21,21 +28,36 @@ def quant_panel(sst_db):
                 for iKey in tmp.keys():
                     all_metrics[iKey] = {}
                     all_metrics[iKey]['metrics'] = tmp[iKey]
-                    all_metrics[iKey]['source'] = key 
+                    all_metrics[iKey]['source'] = key
+
+                    if key == "Overall Performance":
+                        #due to the way slices are added
+                        #this hack is required
+                        if "RGDataset" in iKey:
+                            all_metrics[iKey]['source'] = "Custom Slice"
+                        
+
 
         #st.write(all_metrics)
         chart = ut.visualize_metrics(all_metrics, max_width=100,linked_vis=True)
         event_dict = altair_component(altair_chart=chart)
-        print(event_dict)
        
         #st.altair_chart(chart)
 
-    quant_rcol.write("Right Column")
-    quant_rcol.write(event_dict)
+    #if something was clicked on, find out what it was
+    if 'name' in event_dict.keys():
+        #identify what it was selected on
+        get_selected = event_dict['name'][0]
+        
+        if event_dict['source'][0] in ["Overall Performance","Custom Slice"]:
+            selected = event_dict['name'][0]
+            
+            #get selected slice data
+            idx = ut.get_sliceid(list(sst_db.slices)).index(selected)
+            slice_data = list(sst_db.slices)[idx]
 
-            # all_metrics[key] = st.session_state['quant_ex'][key]
-            #st.markdown("Overall Performance")
-            #chart = ut.visualize_metrics(sst_db.metrics["model"], max_width=100)
-            #chart_title.markdown(f"{key}")
-            #chart = ut.visualize_metrics(st.session_state["quant_ex"][key], max_width=100)
-            #metric_chart.altair_chart(chart)
+            #write slice data to UI
+            quant_rcol.dataframe(ut.slice_to_df(slice_data))
+            
+        else:
+            quant_rcol.table(st.session_state['user_data'][['sentence','model label','user label']])

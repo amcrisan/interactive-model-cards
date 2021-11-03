@@ -185,7 +185,7 @@ def subpopulation_slice(col,sst_db):
             st.markdown("Define you subpopulation")
             user_terms = st.text_input("Enter a set of comma separated words","comedy, hilarious, clown")
             slice_choice = st.selectbox("Choose Data Source", ["Training Data","Test Data"])
-            slice_name = st.text_input("Give your subpopulation a name","supbob_1")
+            slice_name = st.text_input("Give your subpopulation a name","supbob_1",key="custom_slice_name")
             if st.form_submit_button("Create Subpopulation"):
                 #build a new slice
                 #
@@ -195,16 +195,37 @@ def subpopulation_slice(col,sst_db):
                 #on test data
                 sst_db(slice_builder, list(sst_db.slices)[0],['sentence'])
                 
-                #return terms
-                return(user_terms)
+                return slice_name
 
-def slice_vis(col,terms,sst_db):
+def slice_vis(col,terms,sst_db,slice_name):
     with col:
         st.write(terms)
         #TO DO - FORMATTING AND ADD METRICS
         if len(list(sst_db.slices))>2:
             #write out the dataset for this subset
-            st.write(list(sst_db.slices)[2][['sentence','label']])
+
+            #get selected slice data
+            slice_ids = ut.get_sliceid(list(sst_db.slices))
+            idx = [i for i,elem in enumerate(slice_ids) if slice_name in str(elem)]
+           
+            if len(idx)>1:
+                raise ValueError("More than one slice with the same name")
+            else:
+                idx = idx[0]
+
+            if idx is not None:
+                slice_data = list(sst_db.slices)[idx]
+                slice_id = str(slice_data._identifier) 
+
+                #visualize performance
+                all_metrics = ut.metrics_to_dict(sst_db.metrics["model"],slice_id)
+                chart = ut.visualize_metrics(all_metrics)
+                st.altair_chart(chart)
+
+                #write slice data to UI
+                st.dataframe(ut.slice_to_df(slice_data))
+            else:
+                st.write("No slice found")
 
 
 
@@ -245,8 +266,12 @@ def example_panel(sentence_examples,model,sst_db):
                 st.markdown("3. **From your Data** : Upload your own (small) dataset from a csv file")
 
         elif data_src == "From Model Data":
+            #create slice
             slice_terms = subpopulation_slice(exp_lcol,sst_db)
-            slice_vis(exp_rcol,slice_terms,sst_db)
+
+            #visualize slice
+            slice_name = st.session_state['custom_slice_name']
+            slice_vis(exp_rcol,slice_terms,sst_db,slice_name)
 
         elif data_src == "From Your Data":
             exp_lcol.write("Loading your own data")

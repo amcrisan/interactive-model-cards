@@ -10,7 +10,7 @@ def base_chart(df,linked_vis=False,max_width=150,col_val=None):
     base = alt.Chart(df)
 
     if linked_vis:
-        selected = alt.selection_single(on="click", empty="none",fields =['name'])
+        selected = alt.selection_single(on="click", empty="none",fields =['name','source'])
         base = base.add_selection(selected)   
 
         base = base.mark_bar(
@@ -30,7 +30,7 @@ def base_chart(df,linked_vis=False,max_width=150,col_val=None):
          base = base.mark_bar(
             ).encode(
                 alt.X("metric_value", scale=alt.Scale(domain=(0, 1)), title=""),
-                alt.Y("name", title=""),
+                alt.Y("name", title="", sort=['Overall Performance','Your Sentences']),
                 alt.Column("metric_type",title=""),
                 color=alt.value(col_val),
                 tooltip=["name", "metric_type", "metric_value"]
@@ -42,7 +42,7 @@ def base_chart(df,linked_vis=False,max_width=150,col_val=None):
     
 
 @st.cache(allow_output_mutation=True)
-def visualize_metrics(metrics, max_width=150,linked_vis = False,col_val=None):
+def visualize_metrics(metrics, max_width=150,linked_vis = False,col_val="#1f77b4"):
     """
     Visualize the metrics of the model.
     """
@@ -75,11 +75,6 @@ def visualize_metrics(metrics, max_width=150,linked_vis = False,col_val=None):
     # generic metric chart
 
     base = base_chart(metric_df,linked_vis,col_val = col_val)
-    #train= base_chart(metric_df[metric_df['name']=="sst(split=train, version=1.0.0)"],linked_vis=True)
-    #test= base_chart(metric_df[metric_df['name']=="sst(split=test, version=1.0.0)"],linked_vis=True)
-
-    #base  = alt.vconcat(train,test)
-
  
     # layered chart with line
     '''

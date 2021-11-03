@@ -109,3 +109,32 @@ def new_bench():
         }
     )
     return bench
+
+def get_sliceid(slices):
+    """ Because RG stores data in a silly way"""
+    ids = []
+    for slice in list(slices):
+        ids = ids + [slice._identifier]
+    
+    return ids
+
+def slice_to_df(data):
+    """ Convert slice to dataframe"""
+    df = pd.DataFrame({
+        'sentence' : list(data['sentence']),
+        'model label': [int(round(x)) for x in data['label']],
+        'probability' : list(data['label'])
+    })  
+
+    return df  
+
+def metrics_to_dict(metrics,slice_name):
+    """ Convert metrics to dataframe"""
+
+    all_metrics = {slice_name:{}}
+    all_metrics[slice_name]["metrics"] = metrics[slice_name]
+    all_metrics[slice_name]["source"] = "Custom Slice"
+
+    return(all_metrics)
+
+
