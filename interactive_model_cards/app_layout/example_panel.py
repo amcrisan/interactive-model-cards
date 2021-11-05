@@ -65,115 +65,113 @@ def slice_misc(table):
 
 
 # ***** ADDING CUSTOM SENTENCES *******
-def examples(col):
+def examples():
     """ UI for displaying the custom sentences"""
 
     # writing the metrics out to a column
-    with col:
-        st.markdown("** Custom Example Sentences **")
+    st.markdown("** Custom Example Sentences **")
 
-        if not st.session_state["user_data"].empty:
-            # remove the user data slice
+    if not st.session_state["user_data"].empty:
+        # remove the user data slice
 
-            # visualize the overall performance
-            st.markdown("*Model Performance*")
-            key = "Your Sentences"
-            all_metrics = {key:{}}
-            all_metrics[key]["metrics"] = st.session_state["quant_ex"]["User Custom Sentence"][key]
-            all_metrics[key]["source"] = key
+        # visualize the overall performance
+        st.markdown("*Model Performance*")
+        key = "Your Sentences"
+        all_metrics = {key:{}}
+        all_metrics[key]["metrics"] = st.session_state["quant_ex"]["User Custom Sentence"][key]
+        all_metrics[key]["source"] = key
 
-            #chart = ut.visualize_metrics(st.session_state["quant_ex"]["User Custom Sentence"])
-            chart = ut.visualize_metrics(all_metrics,col_val= "#ff7f0e")
-            st.altair_chart(chart)
+        #chart = ut.visualize_metrics(st.session_state["quant_ex"]["User Custom Sentence"])
+        chart = ut.visualize_metrics(all_metrics,col_val= "#ff7f0e")
+        st.altair_chart(chart)
 
-            # add to overall model performance
-            # visualize examples
-            st.markdown("*Examples*")
-            st.dataframe(
-                st.session_state["user_data"][
-                    ["sentence", "model label", "user label", "probability"]
-                ]
-            )
-        else:
-            st.write("No examples added yet")
+        # add to overall model performance
+        # visualize examples
+        st.markdown("*Examples*")
+        st.dataframe(
+            st.session_state["user_data"][
+                ["sentence", "model label", "user label", "probability"]
+            ]
+        )
+    else:
+        st.write("No examples added yet")
 
 
-def example_sentence(col, sentence_examples, model):
+def example_sentence(sentence_examples, model):
     """ UI for creating a custom sentences"""
-    with col:
 
-        # **** Entering Text ***
-        placeholder = st.empty()
+    # **** Entering Text ***
+    placeholder = st.empty()
+    user_text = placeholder.text_input(
+        "Write your own example sentences, or click 'Generate Examples Button'",
+        st.session_state["example_sent"]
+    )
+
+    gen_button = st.button("Generate Examples", key="user_text")
+
+    if gen_button:
+        st.session_state["example_sent"] = sample(
+            set(sentence_examples["sentences"]), 1
+        )[0]
+
         user_text = placeholder.text_input(
             "Write your own example sentences, or click 'Generate Examples Button'",
-            st.session_state["example_sent"]
+            st.session_state["example_sent"],
         )
 
-        gen_button = st.button("Generate Examples", key="user_text")
+    if user_text != "":
 
-        if gen_button:
-            st.session_state["example_sent"] = sample(
-                set(sentence_examples["sentences"]), 1
-            )[0]
+        new_example = format_data(user_text, model)
 
-            user_text = placeholder.text_input(
-                "Write your own example sentences, or click 'Generate Examples Button'",
-                st.session_state["example_sent"],
+        # **** Prediction Sumamary ***
+        with st.form(key="my_form"):
+            st.markdown("**Model Prediction Summary**")
+            st.markdown(
+                f"*The sentiment model predicts that this sentence has an overall `{new_example['model label']}` with an `{new_example['confidence']}` (p={new_example['probability']})*"
             )
 
-        if user_text != "":
+            # prediction agreement solicitation
+            st.markdown("**Do you agree with the prediction?**")
+            agreement = st.radio(
+                "Indicate your agreement below", ["Agree", "Disagree"]
+            )
 
-            new_example = format_data(user_text, model)
+            # getting the user label
+            user_lab = new_example["model label"]
+            user_lab_bin = (
+                int(1)
+                if new_example["model label"] == "Positive Sentiment"
+                else int(0)
+            )
 
-            # **** Prediction Sumamary ***
-            with st.form(key="my_form"):
-                st.markdown("**Model Prediction Summary**")
-                st.markdown(
-                    f"*The sentiment model predicts that this sentence has an overall `{new_example['model label']}` with an `{new_example['confidence']}` (p={new_example['probability']})*"
-                )
-
-                # prediction agreement solicitation
-                st.markdown("**Do you agree with the prediction?**")
-                agreement = st.radio(
-                    "Indicate your agreement below", ["Agree", "Disagree"]
-                )
-
-                # getting the user label
-                user_lab = new_example["model label"]
-                user_lab_bin = (
-                    int(1)
+            if agreement != "Agree":
+                user_lab = (
+                    "Negative Sentiment"
                     if new_example["model label"] == "Positive Sentiment"
-                    else int(0)
+                    else "Positive Sentiment"
                 )
+                user_lab_bin = int(0) if user_lab_bin == 1 else int(1)
 
-                if agreement != "Agree":
-                    user_lab = (
-                        "Negative Sentiment"
-                        if new_example["model label"] == "Positive Sentiment"
-                        else "Positive Sentiment"
-                    )
-                    user_lab_bin = int(0) if user_lab_bin == 1 else int(1)
+            # update robustness gym with user_example prediction
+            if st.form_submit_button("Add to Example Sentences"):
+                # updating the user data frame
+                if user_text != "":
+                    new_example["user label"] = user_lab
+                    new_example["user label binary"] = user_lab_bin
 
-                # update robustness gym with user_example prediction
-                if st.form_submit_button("Add to Example Sentences"):
-                    # updating the user data frame
-                    if user_text != "":
-                        new_example["user label"] = user_lab
-                        new_example["user label binary"] = user_lab_bin
+                    # data frame to append to session info
+                    new_example = pd.DataFrame(new_example, index=[0])
 
-                        # data frame to append to session info
-                        new_example = pd.DataFrame(new_example, index=[0])
+                    # update the session
+                    st.session_state["user_data"] = st.session_state[
+                        "user_data"
+                    ].append(new_example, ignore_index=True)
 
-                        # update the session
-                        st.session_state["user_data"] = st.session_state[
-                            "user_data"
-                        ].append(new_example, ignore_index=True)
+                    # update the user data dev bench
+                    user_bench = slice_misc(st.session_state["user_data"])
 
-                        # update the user data dev bench
-                        user_bench = slice_misc(st.session_state["user_data"])
-
-                        #add bench
-                        st.session_state["quant_ex"]["User Custom Sentence"] = user_bench.metrics["model"]
+                    #add bench
+                    st.session_state["quant_ex"]["User Custom Sentence"] = user_bench.metrics["model"]
 
 
 
@@ -235,12 +233,12 @@ def example_panel(sentence_examples,model,sst_db):
     """ Layout for the custom example panel"""
 
     # Data Expander
-    with st.expander("Add your own examples to test the model on!", expanded=True):
+    with st.expander("Add Custom Text Examples"):
         
         # layouts for the expander
-        exp_lcol, exp_rcol = st.columns([4, 8])
+        #exp_lcol, exp_rcol = st.columns([4, 8])
 
-        data_src = exp_lcol.selectbox(
+        data_src = st.selectbox(
             "Select Example Source",
             ["Help","Text Example", "From Model Data", "From Your Data"],
         )
@@ -255,27 +253,27 @@ def example_panel(sentence_examples,model,sst_db):
         elif data_src == "Help":
             title = "Help"
 
-        exp_lcol.markdown(f"** {title} **")
+        st.markdown(f"** {title} **")
 
         # Layouts for lcol
         if data_src == "Help":
-            with exp_lcol:
-                st.markdown("Here's an overview of the ways you can add customized the performance results. Using the drop down menu above, you can choose from one of three options")
-                st.markdown("1. **Text Example** : Add your own sentences as examples")
-                st.markdown("2. **From Model Data** : Create a new subset from the model's training or testing data")
-                st.markdown("3. **From your Data** : Upload your own (small) dataset from a csv file")
+            #with col:
+            st.markdown("Here's an overview of the ways you can add customized the performance results. Using the drop down menu above, you can choose from one of three options")
+            st.markdown("1. **Text Example** : Add your own sentences as examples")
+            st.markdown("2. **From Model Data** : Create a new subset from the model's training or testing data")
+            st.markdown("3. **From your Data** : Upload your own (small) dataset from a csv file")
 
         elif data_src == "From Model Data":
             #create slice
-            slice_terms = subpopulation_slice(exp_lcol,sst_db)
+            slice_terms = subpopulation_slice(col,sst_db)
 
             #visualize slice
             slice_name = st.session_state['custom_slice_name']
-            slice_vis(exp_rcol,slice_terms,sst_db,slice_name)
+            slice_vis(col,slice_terms,sst_db,slice_name)
 
         elif data_src == "From Your Data":
-            exp_lcol.write("Loading your own data")
+            st.write("Loading your own data")
         else:
             # adding a column for user text input
-            example_sentence(exp_lcol, sentence_examples, model)
-            examples(exp_rcol)
+            example_sentence(sentence_examples, model)
+            examples()

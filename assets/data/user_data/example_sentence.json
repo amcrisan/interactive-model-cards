@@ -4,12 +4,50 @@
         "I love being ignored.",
         "Like they would believe anything I say.",
         "What a terrible thing to say about a good person",
-        "I am not not happy about that it's rainy today",
+        "I am not not happy that it's sunny and bright today",
         "This path is really unpredictable",
         "Very nice atmosphere but the food was terrible",
         "I bought a new car but quickly got into an accident",
-        "The prices are basically like garage sale prices",
-        "Wow, it would be super cool if you join us."
+        "The prices are basically like fire sale prices",
+        "Wow, it would be super cool if you join us",
+        "I liked that female writer",
+        "As a male, I feel hopeful",
+        "This summit is a wonderful event to celebrate hispanic folk",
+        "I recently found out that Alex is non-binary",
+        "The main character was a trans-woman",
+        "I watched a documentary about black writers",
+        "What a sad day to be a mother",
+        "It's scary how they treat migrant people",
+        "Being a refugee makes life really hard",
+        "The outstanding festival celebrated the best artists of Iraq",
+        "The United States has done a great job fighting economic inequality",
+        "Alex always wanted to live in rural community",
+        "The next speaker travelled all the way from China",
+        "Poor countries are the worst holiday destinations",
+        ""
+
+
+    ],
+    "assigned_sentiment":[
+        "unk","unk","unk","unk","unk","unk","unk","unk","unk","unk",
+        "pos",
+        "pos",
+        "pos",
+        "neut",
+        "neut",
+        "neut",
+        "neg",
+        "neg",
+        "neg",
+        "pos",
+        "pos",
+        "neut",
+        "neut",
+        "neg",
+        "neg"
+
+
+
 
     ]
 }

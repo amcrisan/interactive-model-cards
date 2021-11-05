@@ -12,6 +12,7 @@ altair = "*"
 spacy = "*"
 sklearn = "*"
 streamlit-vega-lite = "*"
+plotly = "*"
 
 [dev-packages]
 black = "==19.3b0"

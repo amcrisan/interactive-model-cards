@@ -1,3 +1,4 @@
+import pandas as pd
 def conf_level(val):
     """ Translates probability value into
         a plain english statement """
@@ -20,3 +21,16 @@ def conf_level(val):
         conf = "Extremely High Probability"
 
     return conf
+
+def subsample_df(df=None,size=10,sample_type = "Random Sample"):
+    """ Subsample the dataframe  """
+    size = int(size)
+    if sample_type == "Random Sample":
+        return df.sample(size)
+    elif sample_type == "Highest Probabilities":
+        df.sort_values(by="probability",
+            ascending=False,
+            inplace=True)
+        return df.head(size)
+
+    

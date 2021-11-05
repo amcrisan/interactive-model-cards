@@ -40,6 +40,7 @@ def init_style():
     .streamlit-expanderHeader {
         font-style: italic;
         font-weight :600;
+        font-size:16px;
         padding-top:0px;
         padding-left: 0px;
         color:#A29C9B
