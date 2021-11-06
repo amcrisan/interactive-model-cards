@@ -15,8 +15,8 @@ def quant_panel(sst_db, col):
 
     all_metrics = {}
     with col:
-        min_size = st.number_input("Minimal Sample Size:", value=1000, min_value=30, max_value=10000)
-        st.markdown(f"*All subsamples with `fewer than {min_size} sentences` are reporting potentially unreliable results and are `flagged with a red border`. Take extra care when interpretting this data.*")
+        min_size = st.number_input("Minimal Sample Size:", value=100, min_value=30, max_value=10000)
+        st.write(f'*All subsamples with `fewer than {min_size} sentences` are reporting potentially unreliable results and are <span style="color:red; fontface:bold">flagged with red border</span>. Take extra care when interpretting this data.*', unsafe_allow_html=True)
 
         for key in st.session_state["quant_ex"]:
             tmp = st.session_state["quant_ex"][key]
