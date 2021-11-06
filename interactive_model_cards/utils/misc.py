@@ -1,4 +1,6 @@
 import pandas as pd
+
+
 def conf_level(val):
     """ Translates probability value into
         a plain english statement """
@@ -22,15 +24,20 @@ def conf_level(val):
 
     return conf
 
-def subsample_df(df=None,size=10,sample_type = "Random Sample"):
+
+def subsample_df(df=None, size=10, sample_type="Random Sample"):
     """ Subsample the dataframe  """
     size = int(size)
     if sample_type == "Random Sample":
         return df.sample(size)
     elif sample_type == "Highest Probabilities":
-        df.sort_values(by="probability",
-            ascending=False,
-            inplace=True)
+        df.sort_values(by="probability", ascending=False, inplace=True)
         return df.head(size)
-
-    
+    elif sample_type == "Lowest Probabilities":
+        df.sort_values(by="probability", ascending=True, inplace=True)
+        return df.head(size)
+    else:
+        # sample probabil'ities in the middle
+        tmp = df[(df["probability"] > 0.45) & (df["probability"] < 0.55)]
+        samp = min([size, int(tmp.shape[0])])
+        return tmp.sample(samp)

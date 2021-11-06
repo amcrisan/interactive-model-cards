@@ -87,6 +87,9 @@ if __name__ == "__main__":
         st.session_state["quant_ex"] = {"Overall Performance": sst_db.metrics["model"]}
     if "selected_slice" not in st.session_state:
         st.session_state["selected_slice"] = None
+    if "slice_terms" not in st.session_state:
+        st.session_state["slice_terms"] = {}
+
 
     ### STREAMLIT APP LAYOUT###
 
@@ -96,26 +99,34 @@ if __name__ == "__main__":
     model_card = load_model_card()
     al.model_card_panel(model_card)
 
-
-    lcol, rcol =st.columns([8,4])
-    # ******* QUANTITATIVE DATA PANEL *******
-    al.quant_panel(sst_db,lcol)
+    lcol, rcol = st.columns([4, 8])
 
     # ******* USER EXAMPLE DATA PANEL *******
     st.markdown("---")
-    with rcol:
+    with lcol:
         st.write(
-            """<h1 style="font-size:20px;padding-top:0px;"> Additional Actions</h1>""",
+            """<h1 style="font-size:20px;padding-top:0px;"> Analysis Actions</h1>""",
             unsafe_allow_html=True,
         )
-        al.example_panel(sentence_examples, model,sst_db)
-    
+        al.example_panel(sentence_examples, model, sst_db)
+
     # ****** GUIDANCE PANEL *****
-    with rcol:
         with st.expander("Guidance"):
-            st.markdown("Need help understanding what you're seeing in this model card? Click on the links below to get additional details and support")
+            st.markdown(
+                "Need help understanding what you're seeing in this model card? Click on the links below to get additional details and support"
+            )
 
-            st.markdown(" * **[Understanding Metrics](www.google.com)**:  Get a breakdown of what model metrics really are")
-            st.markdown(" * **[Understanding Sentiment Models](www.google.com)**: Get a simple breakdown of sentiment analysis models")
-            st.markdown("* **[Next Steps](https://docs.google.com/document/d/1r9J1NQ7eTibpXkCpcucDEPhASGbOQAMhRTBvosGu4Pk/edit?usp=sharin)**: Suggestions for follow-on actions" )
-
+            st.markdown(
+                " * **[Understanding Metrics](www.google.com)**:  Get a breakdown of what model metrics really are"
+            )
+            st.markdown(
+                " * **[Understanding Sentiment Models](www.google.com)**: Get a simple breakdown of sentiment analysis models"
+            )
+            st.markdown(
+                "* **[Next Steps](https://docs.google.com/document/d/1r9J1NQ7eTibpXkCpcucDEPhASGbOQAMhRTBvosGu4Pk/edit?usp=sharin)**: Suggestions for follow-on actions"
+            )
+    
+    # ******* QUANTITATIVE DATA PANEL *******
+    rcol.write("""<h1 style="font-size:20px;padding-top:0px;"> Quantitative Analysis</h1>""",
+                unsafe_allow_html=True)
+    al.quant_panel(sst_db, rcol)

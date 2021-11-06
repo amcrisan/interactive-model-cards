@@ -84,7 +84,6 @@ def add_slice(bench, table, model, slice_name="user_data"):
     # add to bench
     # bench.add_slices([dp])
     return dp
-    # eturn(pred)
 
 
 def new_bench():
@@ -110,31 +109,34 @@ def new_bench():
     )
     return bench
 
+
 def get_sliceid(slices):
     """ Because RG stores data in a silly way"""
     ids = []
     for slice in list(slices):
         ids = ids + [slice._identifier]
-    
+
     return ids
+
 
 def slice_to_df(data):
     """ Convert slice to dataframe"""
-    df = pd.DataFrame({
-        'sentence' : list(data['sentence']),
-        'model label': [int(round(x)) for x in data['label']],
-        'probability' : list(data['label'])
-    })  
+    df = pd.DataFrame(
+        {
+            "sentence": list(data["sentence"]),
+            "model label": [int(round(x)) for x in data["label"]],
+            "probability": list(data["label"]),
+        }
+    )
 
-    return df  
+    return df
 
-def metrics_to_dict(metrics,slice_name):
+
+def metrics_to_dict(metrics, slice_name):
     """ Convert metrics to dataframe"""
 
-    all_metrics = {slice_name:{}}
+    all_metrics = {slice_name: {}}
     all_metrics[slice_name]["metrics"] = metrics[slice_name]
     all_metrics[slice_name]["source"] = "Custom Slice"
 
-    return(all_metrics)
-
-
+    return all_metrics
