@@ -11,10 +11,11 @@ from interactive_model_cards import utils as ut
 
 
 def quant_panel(sst_db, col):
-    """ Quantiative Panel Layout"""
+    """ Quantitative Panel Layout"""
 
     all_metrics = {}
     with col:
+        st.write("The performance of the model is broken down into different subpopulations of the training and test data. Performance is assessed via, accuracy, precision, and recall metric. The size of the population reflects the reliability of how these preformance metrics are calculated. The minimal sample size is an adjustable value to help identify small subpopulations in the data. ")
         min_size = st.number_input("Minimal Sample Size:", value=100, min_value=30, max_value=10000)
         st.write(f'*All subsamples with `fewer than {min_size} sentences` are reporting potentially unreliable results and are <span style="color:red; fontface:bold">flagged with red border</span>. Take extra care when interpretting this data.*', unsafe_allow_html=True)
 
@@ -40,10 +41,13 @@ def quant_panel(sst_db, col):
                         # this hack is required
                         if "RGDataset" in iKey:
                             all_metrics[iKey]["source"] = "Custom Slice"
+                        elif "protected" in iKey:
+                             all_metrics[iKey]["source"] = "US Protected Class"
                     else:
                         all_metrics[iKey]["size"] = st.session_state["user_data"].shape[0]
 
         # st.write(all_metrics)
+        st.warning("**Model Performance Metrics**")
         chart = ut.visualize_metrics(all_metrics, max_width=100, linked_vis=True,min_size=min_size)
         event_dict = altair_component(altair_chart=chart)
 
@@ -63,7 +67,8 @@ def quant_panel(sst_db, col):
         #subsampling data from training data
         if st.session_state["selected_slice"]["source"] in [
             "Overall Performance",
-            "Custom Slice"
+            "Custom Slice",
+            "US Protected Class"
         ]:
             selected = st.session_state["selected_slice"]["name"]
             # get selected slice data
@@ -75,12 +80,12 @@ def quant_panel(sst_db, col):
             df = ut.slice_to_df(slice_data)
             with col:
                 #subsetting the data
-                st.markdown("**Data Details**")
+                st.warning("**Data Details**")
                 with st.expander("Customize Data Sample"):
                     with st.form("Sample Form"):
                         st.number_input(
                             "Number of Samples",
-                            value=10,
+                            value=min(df.shape[0],10),
                             min_value=1,
                             max_value=df.shape[0],
                             key="sampleNum",

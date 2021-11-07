@@ -257,53 +257,32 @@ def example_panel(sentence_examples, model, sst_db):
     """ Layout for the custom example panel"""
 
     # Data Expander
-    with st.expander("Add Custom Text Examples"):
+    '''
+    st.markdown(
+        "Here's an overview of the ways you can add customized the performance results. Using the drop down menu above, you can choose from one of three options"
+    )
+    st.markdown(
+        "1. **Define a new subpopulation** : Create a new subset from the model's training or testing data"
+    )
+    st.markdown("1. **Add your own sentences** : Add your own sentences as examples")
+    st.markdown(
+        "3. **Add your own dataset** : Upload your own (small) dataset from a csv file"
+    )
+    '''
+    st.markdown("Modify the quantitative analysis results by defining your own subpopulations in the data, or adding your own data by adding your own sentences or dataset.")
 
-        # layouts for the expander
-        data_src = st.selectbox(
-            "Select Example Source",
-            ["Help", "Text Example", "From Model Data", "From Your Data"],
-        )
-        # Title
-        title = "Add your own sentences as Examples"
-        if data_src == "From Model Data":
-            title = "Create new subset's from the model's data"
-        elif data_src == "From Your Data":
-            title = "Load your own Data Set"
-        elif data_src == "Text Example":
-            title = "Add a Text Example"
-        elif data_src == "Help":
-            title = "Help"
-
-        st.markdown(f"** {title} **")
-
-        # Layouts for lcol
-        if data_src == "Help":
-            # with col:
-            st.markdown(
-                "Here's an overview of the ways you can add customized the performance results. Using the drop down menu above, you can choose from one of three options"
-            )
-            st.markdown("1. **Text Example** : Add your own sentences as examples")
-            st.markdown(
-                "2. **From Model Data** : Create a new subset from the model's training or testing data"
-            )
-            st.markdown(
-                "3. **From your Data** : Upload your own (small) dataset from a csv file"
-            )
-
-        elif data_src == "From Model Data":
+    with st.expander("Define a new subpopulation"):
             # create slice
             slice_terms = subpopulation_slice(sst_db)
 
             # visualize slice
             slice_name = st.session_state["custom_slice_name"]
             # slice_vis(slice_terms,sst_db,slice_name)
-
-        elif data_src == "From Your Data":
+    with st.expander("Add your own sentences"):
+        # adding a column for user text input
+        example_sentence(sentence_examples, model)
+        # examples()
+    with st.expander("Add your own dataset"):
             st.write("Loading your own data")
-        else:
-            # adding a column for user text input
-            example_sentence(sentence_examples, model)
-            # examples()
 
 __all__=["example_panel"]

@@ -8,9 +8,13 @@ from streamlit_vega_lite import altair_component
 # --- Data ---
 import pandas as pd
 
-
 def base_chart(df, linked_vis=False, max_width=150, col_val=None,min_size=100):
-    ''' Make a bar chart to '''
+    ''' Visualize the model's performance across susbets of the data'''
+    #Defining populations in the data
+    pop_domain = ["Overall Performance","Custom Slice","User Custom Sentence","US Protected Class"]
+    color_range = ["#5778a4", "#e49444", "#b8b0ac","#85b6b2"]
+    
+    #being chart
     base = alt.Chart(df)
 
     if linked_vis:
@@ -20,15 +24,14 @@ def base_chart(df, linked_vis=False, max_width=150, col_val=None,min_size=100):
         base = base.add_selection(selected)
 
         base = (
-            base.mark_bar()
-            .encode(
+            base.mark_bar().encode(
                 alt.X("metric_value", 
                     scale=alt.Scale(domain=(0, 1)), title=""
                 ),
-                alt.Y("name", title=""),
+                alt.Y("displayName", title=""),
                 alt.Column("metric_type", title=""),
                 alt.StrokeWidth("size:N",
-                    scale=alt.Scale(domain=[True,False],range=[0,3])
+                    scale=alt.Scale(domain=[True,False],range=[0,1.25])
                 ),
                 alt.StrokeOpacity("size:N",
                     scale=alt.Scale(domain=[True,False],range=[0,1])
@@ -36,10 +39,9 @@ def base_chart(df, linked_vis=False, max_width=150, col_val=None,min_size=100):
                 alt.Stroke("size:N",
                     scale=alt.Scale(domain=[True,False],range=["white","red"])
                 ),
-                # alt.Row("source",title=""),
                 alt.Fill("source",
-                    scale = alt.Scale(domain = ["Overall Performance","Custom Slice","Your Sentences"],
-                    range=["#1f77b4", "#ff7f0e", "#2ca02c"])),
+                    scale = alt.Scale(domain = pop_domain,
+                    range=color_range)),
                 opacity=alt.condition(selected, alt.value(1), alt.value(0.5)),
                 tooltip=["name", "metric_type", "metric_value"]
             )
@@ -99,8 +101,12 @@ def visualize_metrics(metrics, max_width=150, linked_vis=False, col_val="#1f77b4
             )
         )
 
-    # generic metric chart
 
+    #adding a human friendly display name (not RG's backend-name)
+    tmp = [i.split("->") for i in metric_df['name']]
+    metric_df['displayName']=[i.split("@")[0] for i in [j[0] if len(j)<=1 else j[1] for j in tmp ]]
+
+    # generic metric chart
     base = base_chart(metric_df, linked_vis, col_val=col_val)
 
     # layered chart with line

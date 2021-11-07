@@ -1,0 +1,12 @@
+column_dtypes:
+  index: &id002 !!python/name:meerkat.columns.list_column.ListColumn ''
+  label: !!python/name:meerkat.columns.numpy_column.NumpyArrayColumn ''
+  logits: &id001 !!python/name:meerkat.columns.tensor_column.TensorColumn ''
+  pred: *id001
+  probs: *id001
+  sentence: *id002
+  tokens: *id002
+  tree: *id002
+dtype: !!python/name:robustnessgym.core.slice.SliceDataPanel ''
+len: 3
+write_together: false

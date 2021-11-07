@@ -1,0 +1,3 @@
+dtype: !!python/name:meerkat.columns.list_column.ListColumn ''
+len: 27
+write_together: true
