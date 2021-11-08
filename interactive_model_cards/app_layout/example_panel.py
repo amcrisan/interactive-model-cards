@@ -253,7 +253,7 @@ def slice_vis(terms, sst_db, slice_name):
 
 # ***** EXAMPLE PANEL UI *******
 
-def example_panel(sentence_examples, model, sst_db):
+def example_panel(sentence_examples, model, sst_db,embedding):
     """ Layout for the custom example panel"""
 
     # Data Expander

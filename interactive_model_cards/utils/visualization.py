@@ -125,6 +125,53 @@ def visualize_metrics(metrics, max_width=150, linked_vis=False, col_val="#1f77b4
 
     return base
 
+@st.cache(allow_output_mutation=True)
+def data_comparison(df):
+    #set up a dropdown select bindinf
+    #input_dropdown = alt.binding_select(options=['Negative Sentiment','Positive Sentiment'])
+    selection = alt.selection_multi(fields=['name','sentiment'])
+
+    #highlight colors on select
+    color = alt.condition(selection,
+                        alt.Color('source:N', legend=None),
+                        alt.value('lightgray'))
+    opacity = alt.condition(selection,alt.value(0.8),alt.value(0.25))
+
+
+    #basic chart
+    scatter = alt.Chart(df).mark_point(size=100,filled=True).encode(
+        x=alt.X('x',axis=None),
+        y=alt.Y('y',axis=None),
+        color = color,
+        shape=alt.Shape('sentiment', scale=alt.Scale(range=['circle', 'diamond'])),
+        tooltip=['source','name','sentence','sentiment'],
+        opacity=opacity
+    ).properties(
+        width= 700,
+        height = 900
+    ).interactive()
+
+
+    legend = alt.Chart(df).mark_point().encode(
+        y=alt.Y('name:N', axis=alt.Axis(orient='right'),title=""),
+        x=alt.X("sentiment"),
+        shape=alt.Shape('sentiment', scale=alt.Scale(range=['circle', 'diamond']),legend=None),
+        color=color
+    ).add_selection(
+        selection
+    )
+
+    layered = scatter | legend
+
+
+    layered = layered.configure_axis(
+        grid=False
+    ).configure_view(
+        strokeOpacity=0
+    )
+
+    return layered
+
 
 def vis_table(df, userInput=False):
     """ Visualize table data more effectively """

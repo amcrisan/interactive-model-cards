@@ -7,7 +7,8 @@ from math import floor
 
 # Robustness Gym and Analysis
 import robustnessgym as rg
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from gensim.models.doc2vec import Doc2Vec
+#from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 # App & Visualization
 import streamlit as st
@@ -44,6 +45,18 @@ def load_model():
     )
     return model
 
+#load pre-computed embedding
+@st.cache(allow_output_mutation=True)
+def load_embedding():
+    embedding = pd.read_pickle("./assets/models/sst_vectors.pkl")
+    return embedding
+
+#load doc2vec model
+@st.experimental_singleton
+def load_doc2vec():
+    doc2vec = Doc2Vec.load("./assets/models/sst_train.doc2vec")
+    return(doc2vec)  
+    
 
 # @st.experimental_memo
 def load_examples():
@@ -74,6 +87,8 @@ if __name__ == "__main__":
     # ******* loading the mode and the data
     with st.spinner():
         sst_db, model = load_basic()
+        embedding = load_embedding()
+        doc2vec = load_doc2vec()
 
     # load example sentences
     sentence_examples = load_examples()
@@ -108,7 +123,7 @@ if __name__ == "__main__":
             """<h1 style="font-size:20px;padding-top:0px;"> Analysis Actions</h1>""",
             unsafe_allow_html=True,
         )
-        al.example_panel(sentence_examples, model, sst_db)
+        al.example_panel(sentence_examples, model, sst_db,embedding)
 
     # ****** GUIDANCE PANEL *****
         with st.expander("Guidance"):
@@ -129,4 +144,5 @@ if __name__ == "__main__":
     # ******* QUANTITATIVE DATA PANEL *******
     rcol.write("""<h1 style="font-size:20px;padding-top:0px;"> Quantitative Analysis</h1>""",
                 unsafe_allow_html=True)
-    al.quant_panel(sst_db, rcol)
+    
+    al.quant_panel(sst_db, embedding,rcol)

@@ -1,4 +1,5 @@
 import pandas as pd
+from numpy import floor
 
 
 def conf_level(val):
@@ -41,3 +42,23 @@ def subsample_df(df=None, size=10, sample_type="Random Sample"):
         tmp = df[(df["probability"] > 0.45) & (df["probability"] < 0.55)]
         samp = min([size, int(tmp.shape[0])])
         return tmp.sample(samp)
+
+
+def down_samp(embedding):
+    """Down sample a data frame for altiar visualization """
+    #total number of positive and negative sentiments in the class
+    total_size = embedding.groupby(['name', 'sentiment']).count()
+
+    max_sample = total_size.groupby('name').max()['source']
+
+    #down sample to meeting altair's max values
+    #but keep the proportional representation of groups
+    down_samp = 1/(sum(max_sample)/5000)
+
+    max_samp = floor(max_sample*down_samp).astype(int).to_dict()
+
+    #sample down for each group in the data frame
+    embedding= embedding.groupby('name').apply(lambda x: x.sample(n=max_samp.get(x.name))).reset_index(drop = True)
+
+    #order the embedding
+    return(embedding.sort_values(['sort_order'],ascending=True))
