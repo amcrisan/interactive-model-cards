@@ -13,16 +13,15 @@ spacy = "*"
 sklearn = "*"
 streamlit-vega-lite = "*"
 plotly = "*"
+gensim = "*"
 
 [dev-packages]
 black = "==19.3b0"
 pylint = "*"
 watchdog = "*"
-nltk = "*"
-numpy = "*"
 jupyterlab = "*"
 jupyter = "*"
-gensim = "*"
+
 
 [requires]
 python_version = "3.8"
