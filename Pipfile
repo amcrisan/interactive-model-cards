@@ -14,6 +14,7 @@ sklearn = "*"
 streamlit-vega-lite = "*"
 plotly = "*"
 gensim = "*"
+cython = "*"
 
 [dev-packages]
 black = "==19.3b0"
@@ -21,7 +22,6 @@ pylint = "*"
 watchdog = "*"
 jupyterlab = "*"
 jupyter = "*"
-
 
 [requires]
 python_version = "3.8"

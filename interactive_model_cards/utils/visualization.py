@@ -8,7 +8,7 @@ from streamlit_vega_lite import altair_component
 # --- Data ---
 import pandas as pd
 
-def base_chart(df, linked_vis=False, max_width=150, col_val=None,min_size=100):
+def base_chart(df, linked_vis=False, max_width=150, col_val=None,min_size=100,size_domain=[]):
     ''' Visualize the model's performance across susbets of the data'''
     #Defining populations in the data
     pop_domain = ["Overall Performance","Custom Slice","User Custom Sentence","US Protected Class"]
@@ -31,21 +31,29 @@ def base_chart(df, linked_vis=False, max_width=150, col_val=None,min_size=100):
                 alt.Y("displayName", title=""),
                 alt.Column("metric_type", title=""),
                 alt.StrokeWidth("size:N",
-                    scale=alt.Scale(domain=[True,False],range=[0,1.25])
+                    scale=alt.Scale(domain=size_domain,range=[0,1.25]),
+                    title="#sentences"
                 ),
                 alt.StrokeOpacity("size:N",
-                    scale=alt.Scale(domain=[True,False],range=[0,1])
+                    scale=alt.Scale(domain=size_domain,range=[0,1])
                     ),
                 alt.Stroke("size:N",
-                    scale=alt.Scale(domain=[True,False],range=["white","red"])
+                    scale=alt.Scale(domain=size_domain,range=["white","red"]),
                 ),
                 alt.Fill("source",
                     scale = alt.Scale(domain = pop_domain,
-                    range=color_range)),
+                    range=color_range),
+                    title = "Data Subpopulation"),
                 opacity=alt.condition(selected, alt.value(1), alt.value(0.5)),
                 tooltip=["name", "metric_type", "metric_value"]
-            )
-            .properties(width=max_width)
+            ).properties(width=125
+            ).configure_axis(
+                labelFontSize=14
+            ).
+            configure_legend(
+                labelFontSize=14
+            ) 
+    
         )
     else:
         #This is now depracted and should never occur
@@ -78,7 +86,6 @@ def visualize_metrics(metrics, max_width=150, linked_vis=False, col_val="#1f77b4
     for key in metrics.keys():
         metric_types = []
         metric_values = []
-
         tmp = metrics[key]["metrics"]
 
         # get individual metrics
@@ -96,7 +103,7 @@ def visualize_metrics(metrics, max_width=150, linked_vis=False, col_val="#1f77b4
                     "metric_type": metric_types,
                     "metric_value": metric_values,
                     "source": source,
-                    "size" : [ True if x >= min_size else False for x in size]
+                    "size" : [ f">={min_size} sentences" if x >= min_size else f"<{min_size} sentences" for x in size]
                 }
             )
         )
@@ -106,8 +113,10 @@ def visualize_metrics(metrics, max_width=150, linked_vis=False, col_val="#1f77b4
     tmp = [i.split("->") for i in metric_df['name']]
     metric_df['displayName']=[i.split("@")[0] for i in [j[0] if len(j)<=1 else j[1] for j in tmp ]]
 
+    #passing the size domain
+    size_domain = [f">={min_size} sentences", f"<{min_size} sentences"]
     # generic metric chart
-    base = base_chart(metric_df, linked_vis, col_val=col_val)
+    base = base_chart(metric_df, linked_vis, col_val=col_val,size_domain=size_domain)
 
     # layered chart with line
     """
@@ -125,17 +134,21 @@ def visualize_metrics(metrics, max_width=150, linked_vis=False, col_val="#1f77b4
 
     return base
 
-@st.cache(allow_output_mutation=True)
+#@st.cache(allow_output_mutation=True)
 def data_comparison(df):
     #set up a dropdown select bindinf
     #input_dropdown = alt.binding_select(options=['Negative Sentiment','Positive Sentiment'])
     selection = alt.selection_multi(fields=['name','sentiment'])
 
+    pop_domain = ["Overall Performance","Custom Slice","User Custom Sentence","US Protected Class"]
+    color_range = ["#5778a4", "#e49444", "#b8b0ac","#85b6b2"]
+
     #highlight colors on select
     color = alt.condition(selection,
                         alt.Color('source:N', legend=None),
+                        #scale = alt.Scale(domain = pop_domain,range=color_range)),
                         alt.value('lightgray'))
-    opacity = alt.condition(selection,alt.value(0.8),alt.value(0.25))
+    opacity = alt.condition(selection,alt.value(0.7),alt.value(0.25))
 
 
     #basic chart
@@ -147,8 +160,8 @@ def data_comparison(df):
         tooltip=['source','name','sentence','sentiment'],
         opacity=opacity
     ).properties(
-        width= 700,
-        height = 900
+        width= 600,
+        height = 700
     ).interactive()
 
 
@@ -174,7 +187,7 @@ def data_comparison(df):
 
 
 def vis_table(df, userInput=False):
-    """ Visualize table data more effectively """
+    """ DEPRECATED :  Visualize table data more effectively """
     fig = go.Figure(
         data=[
             go.Table(

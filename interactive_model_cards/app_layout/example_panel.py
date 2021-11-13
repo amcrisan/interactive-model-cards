@@ -99,17 +99,17 @@ def examples():
         st.write("No examples added yet")
 
 
-def example_sentence(sentence_examples, model):
+def example_sentence(sentence_examples, model,doc2vec):
     """ UI for creating a custom sentences"""
 
     # **** Entering Text ***
     placeholder = st.empty()
     user_text = placeholder.text_input(
-        "Write your own example sentences, or click 'Generate Examples Button'",
+        "Write your own example sentences, or click 'Get Suggest Examples'",
         st.session_state["example_sent"],
     )
 
-    gen_button = st.button("Generate Examples", key="user_text")
+    gen_button = st.button("Get Suggested Example", key="user_text")
 
     if gen_button:
         st.session_state["example_sent"] = sample(
@@ -117,7 +117,7 @@ def example_sentence(sentence_examples, model):
         )[0]
 
         user_text = placeholder.text_input(
-            "Write your own example sentences, or click 'Generate Examples Button'",
+            "Write your own example sentences, or click 'Get Suggested Example'",
             st.session_state["example_sent"],
         )
 
@@ -125,7 +125,7 @@ def example_sentence(sentence_examples, model):
 
         new_example = format_data(user_text, model)
 
-        # **** Prediction Sumamary ***
+        # **** Prediction Summary ***
         with st.form(key="my_form"):
             st.markdown("**Model Prediction Summary**")
             st.markdown(
@@ -151,7 +151,7 @@ def example_sentence(sentence_examples, model):
                 user_lab_bin = int(0) if user_lab_bin == 1 else int(1)
 
             # update robustness gym with user_example prediction
-            if st.form_submit_button("Add to Example Sentences"):
+            if st.form_submit_button("Add to exisiting sentences"):
                 # updating the user data frame
                 if user_text != "":
                     new_example["user label"] = user_lab
@@ -179,10 +179,19 @@ def example_sentence(sentence_examples, model):
                         'source': 'User Custom Sentence',
                     }
 
+                    #update the sentence with an embedding
+                    embedding = st.session_state["embedding"]
+                    tmp = ut.prep_sentence_embedding(name ='Your Sentences',
+                                      source = 'User Custom Sentence',
+                                      sentence = user_text,
+                                      sentiment= user_lab,
+                                      sort_order=5,
+                                      embed_model = doc2vec,
+                                      idx = max(embedding.index)+1)
+
+                    st.session_state["embedding"] = embedding.append(tmp)
 
 # ***** DEFINTING CUSTOM SUBGROUPS *******
-
-
 def subpopulation_slice(sst_db):
     with st.form(key="subpop_form"):
         st.markdown("Define you subpopulation")
@@ -200,9 +209,13 @@ def subpopulation_slice(sst_db):
             #
             user_terms = [x.strip() for x in user_terms.split(",")]
             slice_builder = rg.HasAnyPhrase([user_terms], identifiers=[slice_name])
+       
 
             # on test data
-            sst_db(slice_builder, list(sst_db.slices)[0], ["sentence"])
+            if slice_choice == "Training Data":
+                slice_ids = ut.get_sliceid(list(sst_db.slices))
+                idx = ut.get_sliceidx(slice_ids,"xyz_train")
+                sst_db(slice_builder, list(sst_db.slices)[idx], ["sentence"])
 
             #get store slice name
             slice_ids = ut.get_sliceid(list(sst_db.slices))
@@ -252,8 +265,7 @@ def slice_vis(terms, sst_db, slice_name):
 
 
 # ***** EXAMPLE PANEL UI *******
-
-def example_panel(sentence_examples, model, sst_db,embedding):
+def example_panel(sentence_examples, model, sst_db,doc2vec):
     """ Layout for the custom example panel"""
 
     # Data Expander
@@ -271,18 +283,17 @@ def example_panel(sentence_examples, model, sst_db,embedding):
     '''
     st.markdown("Modify the quantitative analysis results by defining your own subpopulations in the data, or adding your own data by adding your own sentences or dataset.")
 
-    with st.expander("Define a new subpopulation"):
+    with st.expander("Explore new subpopulations in model data"):
             # create slice
             slice_terms = subpopulation_slice(sst_db)
 
             # visualize slice
             slice_name = st.session_state["custom_slice_name"]
             # slice_vis(slice_terms,sst_db,slice_name)
-    with st.expander("Add your own sentences"):
+    with st.expander("Explore with your own sentences"):
         # adding a column for user text input
-        example_sentence(sentence_examples, model)
+        example_sentence(sentence_examples, model,doc2vec)
         # examples()
-    with st.expander("Add your own dataset"):
-            st.write("Loading your own data")
-
+    with st.expander("Explore with your own dataset"):
+            st.error("This feature is not enabled for the online deployment")
 __all__=["example_panel"]

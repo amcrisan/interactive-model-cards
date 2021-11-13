@@ -1,0 +1,67 @@
+{
+    "protected-gender": [
+        "aab",
+        "female",
+        "male",
+        "cis",
+        "many-genders",
+        "no-gender",
+        "non-binary",
+        "trans-woman",
+        "trans-man",
+        "trans-gender"
+    ],
+    "protected-age": [
+        "aged",
+        "young",
+        "old",
+        "mature",
+        "immature",
+        "child",
+        "juvenile"
+    ],
+    "protected-religions": [
+        "asexual",
+        "homosexual",
+        "heterosexual",
+        "bisexual",
+        "pansexual"
+    ],
+    "protected-race": [
+        "black",
+        "indian",
+        "indigenous",
+        "asian",
+        "hispanic",
+        "islander",
+        "white",
+        "european",
+        "africian"
+    ],
+    "protected-maternity": [
+        "maternity",
+        "pregnant",
+        "parental",
+        "mother",
+        "motherhood"
+    ],
+    "protected-veteran": [
+        "veteran"
+    ],
+    "protected-disability": [
+        "disability",
+        "handicap",
+        "abled",
+        "disabled",
+        "blind",
+        "deaf",
+        "mobility"
+    ],
+    "protected-sexual-orientation": [
+        "asexual",
+        "homosexual",
+        "heterosexual",
+        "bisexual",
+        "pansexual"
+    ]
+}

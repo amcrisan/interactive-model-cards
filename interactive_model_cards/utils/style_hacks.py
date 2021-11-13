@@ -10,7 +10,7 @@ def init_style():
     <style>
     /* Side Bar */
     .css-1outpf7 {
-        background-color:rgb(246 240 240);
+        background-color:rgb(254 244 219);
         width:30rem;
         padding:10px 10px 10px 10px;
     }
@@ -34,7 +34,7 @@ def init_style():
     .streamlit-expander {
         border-width: 0px;
         border-bottom: 1px solid #A29C9B;
-        border-radius: 0px;
+        border-radius: 25px;
     }
 
     .streamlit-expanderHeader {
@@ -54,6 +54,13 @@ def init_style():
     .st-e5 {
         background-color:lightblue;
     }
+    /*line special*/
+    .line-one{
+        border-width: 0px;
+        border-bottom: 1px solid #A29C9B;
+        border-radius: 50px; 
+    }
+
     </style>
 """,
         unsafe_allow_html=True,
