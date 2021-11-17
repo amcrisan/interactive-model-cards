@@ -9,6 +9,8 @@ from math import floor
 import robustnessgym as rg
 from gensim.models.doc2vec import Doc2Vec
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+import nltk
+nltk.download('punkt') #make sure that punkt is downloaded
 
 # App & Visualization
 import streamlit as st
@@ -19,6 +21,8 @@ from interactive_model_cards import utils as ut
 from interactive_model_cards import app_layout as al
 from random import sample
 from PIL import Image
+
+
 
 ### LOADING DATA ###
 # model card data
