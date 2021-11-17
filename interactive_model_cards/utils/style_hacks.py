@@ -34,7 +34,7 @@ def init_style():
     .streamlit-expander {
         border-width: 0px;
         border-bottom: 1px solid #A29C9B;
-        border-radius: 25px;
+        border-radius: 10px;
     }
 
     .streamlit-expanderHeader {

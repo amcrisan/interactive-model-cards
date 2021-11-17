@@ -185,7 +185,7 @@ def example_sentence(sentence_examples, model,doc2vec):
                                       source = 'User Custom Sentence',
                                       sentence = user_text,
                                       sentiment= user_lab,
-                                      sort_order=5,
+                                      sort_order= 100, #always put it on top
                                       embed_model = doc2vec,
                                       idx = max(embedding.index)+1)
 
@@ -229,6 +229,21 @@ def subpopulation_slice(sst_db):
         
             #storing the slice terms
             st.session_state["slice_terms"] = {slice_name[0]: user_terms}
+
+            #adding slice to embedding
+            #update the sentence with an embedding
+
+            #embedding = st.session_state["embedding"]
+            #tmp = ut.prep_sentence_embedding(name ='Your Sentences',
+            #    source = 'User Custom Sentence',
+            #    sentence = user_text,
+            #    sentiment= user_lab,
+            #    sort_order=5,
+            #    embed_model = doc2vec,
+            #    idx = max(embedding.index)+1)
+
+            #st.session_state["embedding"] = embedding.append(tmp)
+
 
             return slice_name
 

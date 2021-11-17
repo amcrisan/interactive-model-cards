@@ -1,10 +1,11 @@
 {
     "model-details":{
         "name": "Model Details",
-        "short": ["This model, `distilbert-base-uncased-finetuned-sst-2-english', is a sentiment analysis"],
-        "extended": ["This model is a fine-tune checkpoint of DistilBERT-base-uncased [1], trained using the SST-2 dataset[2]",
-            "This model is uncased meaning  it does not make a difference between the words `english’, `English’, and `ENGLISH’",
-            "**DistilBERT** is a transformers model, smaller and faster than **BERT**, which was pretrained on the same corpus in a self-supervised fashion, using the BERT base model as a teacher. This means it was pretrained on the raw texts only, with no humans labelling them in any way (which is why it can use lots of publicly available data) with an automatic process to generate inputs and labels from those texts using the BERT base model. This way, the model learns the same inner representation of the English language than its teacher model, while being faster for inference or downstream tasks."
+        "short": ["This model, `distilbert-base-uncased-finetuned-sst-2-english`, is a sentiment analysis model. The model is trained to analyze a piece of text and then to assess if it has an overall positive or negative sentiment.", 
+            "This model is a so-called fine-tune of a more general language model called [DistilBERT](https://huggingface.co/distilbert-base-uncased)."],
+        "extended": ["This model is a fine-tune checkpoint of [DistilBERT-base-uncased](https://huggingface.co/distilbert-base-uncased) [1], trained using the [SST-2 dataset](https://nlp.stanford.edu/sentiment/treebank.html)[2]",
+            "This model is uncased meaning  it does not make a difference between the words `english`, `English`, and `ENGLISH`",
+            "[DistilBERT](https://huggingface.co/distilbert-base-uncased) is a transformers model, smaller and faster than [BERT](https://huggingface.co/bert-base-uncased), which was pre-trained on the same corpus in a self-supervised fashion, using the BERT base model as a teacher. This means it was pretrained on the raw texts only, with no humans labelling them in any way (which is why it can use lots of publicly available data) with an automatic process to generate inputs and labels from those texts using the BERT base model. This way, the model learns the same inner representation of the English language than its teacher model, while being faster for inference or downstream tasks."
         ]
     },
     "intended-use":{
@@ -13,8 +14,8 @@
         "short": ["This model is primarily aimed at classifying whether sentences have an overall positive or negative sentiment"
         ],
         "extended": ["This model only reports a probability between 0 and 1 indicating whether some sentence has an overall positive or negative sentiment. The model does not explicitly define a neutral category, but one could be introduced",
-        "`Positive sentiment' is represent with the numeric value `1'. A positive sentiment indicates the passage general conveys an happy, confident, or optimistic sentiment",
-        "`Negative sentiment' is represent with the numeric value `0'. A negative sentiment indicates the passage general conveys a sad, depressed, or pessimistic sentiment",
+        "`Positive sentiment` is represent with the numeric value `1'. A positive sentiment indicates the passage general conveys an happy, confident, or optimistic sentiment",
+        "`Negative sentiment` is represent with the numeric value `0'. A negative sentiment indicates the passage general conveys a sad, depressed, or pessimistic sentiment",
         "There are a number known of challenges of correctly determining the [sentiment of text](https://en.wikipedia.org/wiki/Sentiment_analysis)"]
 
     },
@@ -22,18 +23,18 @@
         "name": "Ethical Considerations",
         "warning" : "Warning! Additional bias analysis was not conducted",
         "short": [
-            "Even if the training data used for this model could be characterized as fairly neutral, this model can have biased predictions. It also inherits some of the bias of the  **BERT** base model and **DistilBERT-base-uncased**"
+            "Even if the training data used for this model could be characterized as fairly neutral, this model can have biased predictions. It also inherits some of the bias of the [BERT](https://huggingface.co/bert-base-uncased) base model and [DistilBERT](https://huggingface.co/distilbert-base-uncased)"
         ]
     },
     "training":{
-        "name": "Model Training",
+        "name": "Model Training & Evaluation",
         "warning" : "Warning! Dataset is more than five years old",
-        "short":  ["This model is fine-tuned using the SST-2, Standford Sentiment Treebank v2 dataset.",
+        "short":  ["This model is fine-tuned using the SST-2, Stanford Sentiment Treebank v2 dataset.",
         "This model primarily classifies a sentence as having an overall positive or negative sentiment" ],
         "extended": [
-            "distilbert-base-uncased-finetuned-sst-2-english Data : The  SST-2 dataset contains 215,154 phrases with sentiment labels in the parse trees of 11,855 sentences from movie reviews.",
-            ["DistilBERT-base-uncased  Data :  BookCorpus [4] , a dataset consisting of 11,038 unpublished books and English Wikipedia [5]. You can learn more about distilbert-base-uncased-finetuned-sst-2-english [here](https://huggingface.co/distilbert-base-uncased)"]
-            
+            "This model was trained  and evaluated on on the  SST-2 dataset contains 215,154 phrases with sentiment labels in the parse trees of 11,855 sentences from movie reviews.",
+            "This model is a fine-tune of [DistilBERT](https://huggingface.co/distilbert-base-uncased), which is a general purpose language model. Fine-tuning means that the DistillBERT model has been optimized for the task of sentiment analysis using the SST-2 dataset. ",
+            {"Fine-tuning hyper-parameters":["learning_rate = 1e-5", "batch_size = 32", "warmup = 600", "max_seq_length = 128", "num_train_epochs = 3.0"]}
         ]
     },
     "references":{

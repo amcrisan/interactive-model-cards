@@ -163,10 +163,10 @@ if __name__ == "__main__":
             )
 
             st.markdown(
-                " * **[Understanding Metrics](www.google.com)**:  Get a breakdown of what model metrics really are"
+                " * **[Understanding Metrics](https://stanford.edu/~shervine/teaching/cs-229/cheatsheet-machine-learning-tips-and-tricks)**: A cheatsheet of model metrics"
             )
             st.markdown(
-                " * **[Understanding Sentiment Models](www.google.com)**: Get a simple breakdown of sentiment analysis models"
+                " * **[Understanding Sentiment Models](https://www.semanticscholar.org/topic/Sentiment-analysis/6011)**: An overview of sentiment analysis"
             )
             st.markdown(
                 "* **[Next Steps](https://docs.google.com/document/d/1r9J1NQ7eTibpXkCpcucDEPhASGbOQAMhRTBvosGu4Pk/edit?usp=sharin)**: Suggestions for follow-on actions"

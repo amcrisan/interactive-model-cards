@@ -36,7 +36,7 @@ def perf_interact(type="model perf",min_size=0):
 
         st.markdown("") #just to space them out
     else:
-        st.write("This visualization shows a representation of the data according to how similar two sentences are *relative to the data the model was trained on*. The **closer** two points on the visualization the **more similar** the sentences are. The **further apart ** two points on the visualization the **more different** the sentences are")
+        st.write("This visualization shows a representation of the data according to how similar two sentences are *relative to the data the model was trained on*.")
 
         st.markdown(
             f"""
@@ -210,6 +210,12 @@ def quant_panel(sst_db, embedding, col,data_view):
         else:
             st.warning("**Subpopulation Comparison**")
             perf_interact(type="comparison")
+
+            with st.expander("how to read this chart:"):
+                st.markdown("* each **point** is a single sentence")
+                st.markdown("* the **position** of each dot is determined mathematically based upon an analysis of the words in a sentence. The **closer** two points on the visualization the **more similar** the sentences are. The **further apart ** two points on the visualization the **more different** the sentences are")
+                st.markdown(" * the **shape** of each point reflects whether it a positive (diamond) or negative sentiment (circle)")
+                st.markdown("* the **color** of each point is the ")
 
             #down sample embedding for altair limitations
             tmp = embedding
