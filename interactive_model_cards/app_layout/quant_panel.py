@@ -160,7 +160,7 @@ def quant_panel(sst_db, embedding, col,data_view):
                     #drawing the sampled data
                     
                     #summarize slice information
-                    displayName = selected.split("->")
+                    displayName = str(selected).split("->")
                     
                     if len(displayName) > 1:
                         displayName = displayName[1].split("@")[0].strip()
