@@ -122,24 +122,34 @@ def get_sliceidx(slice_ids,name):
     """ get the index from an rg slice"""
 
     if name == "xyz_train":
-        idx = [i for i, elem in enumerate(slice_ids) if ("train"in str(elem) and len(str(elem).split("->")) == 1)]
+        idx = [i for i, elem in enumerate(slice_ids) if ("split=train" in str(elem)) ] #and len(str(elem).split("->")) == 1)]
     elif name == "xyz_test":
-        idx = [i for i, elem in enumerate(slice_ids) if ("train"in str(elem) and len(str(elem).split("->")) == 1)]
+        idx = [i for i, elem in enumerate(slice_ids) if ("split=test" in str(elem)) ] #and len(str(elem).split("->")) == 1)]
     else:
         idx = [i for i, elem in enumerate(slice_ids) if name in str(elem)]
         
     return idx[0]
 
+def get_prob(x,i):
+    """ Helper to get probability"""
+
+    return(float(x[i]))
 
 def slice_to_df(data):
     """ Convert slice to dataframe"""
     df = pd.DataFrame(
         {
             "sentence": list(data["sentence"]),
-            "model label": [int(round(x)) for x in data["label"]],
-            "probability": list(data["label"]),
+            "model label": ["Positive Sentiment" if int(round(x)) == 1 else "Negative Sentiment" for x in data["label"]],
+            "model binary": [int(round(x))  for x in data["label"]],
         }
     )
+
+    prob = []
+    for i in range(0, len(data['probs'])):
+        prob.append(get_prob(data['probs'][i],df["model binary"][i]))
+
+    df["probability"] = prob
 
     return df
 

@@ -131,8 +131,9 @@ if __name__ == "__main__":
     st.sidebar.warning("Data is not permanently collected or stored from your interactions, but is temporarily cached during usage.")
 
     # load model card data
+    errors = st.sidebar.checkbox("Show Warnings", value=True)
     model_card = load_model_card()
-    al.model_card_panel(model_card)
+    al.model_card_panel(model_card,errors)
 
     lcol, rcol = st.columns([4, 8])
 

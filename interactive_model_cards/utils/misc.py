@@ -12,7 +12,7 @@ def conf_level(val):
         a plain english statement """
     # https://www.dni.gov/files/documents/ICD/ICD%20203%20Analytic%20Standards.pdf
     conf = "undefined"
-    print(val)
+
     if val < 0.05:
         conf = "Extremely Low Probability"
     elif val >= 0.05 and val < 0.20:
@@ -56,7 +56,6 @@ def down_samp(embedding):
 
     user_data = 0
     if 'Your Sentences' in str(total_size['name']):
-        print(True)
         tmp = embedding.groupby(['name'],as_index=False).count()
         val = int(tmp[tmp['name'] == "Your Sentences"]['source'])
         user_data=val
@@ -70,29 +69,70 @@ def down_samp(embedding):
     max_samp = floor(max_sample*down_samp).astype(int).to_dict()
     max_samp['Your Sentences'] = user_data
 
-    #print(max_samp)
-
     #sample down for each group in the data frame
     embedding= embedding.groupby('name').apply(lambda x: x.sample(n=max_samp.get(x.name))).reset_index(drop = True)
 
     #order the embedding
     return(embedding.sort_values(['sort_order'],ascending=True))
 
-def prep_sentence_embedding(name,source, sentence, sentiment, sort_order,embed_model,idx):
+
+
+def prep_embed_data(data,model):
+    ''' Basic data tagging'''
+    tagged_data = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[str(i)]) for i, _d in enumerate(data)]
+    embedding = [model.infer_vector(tagged_data[i].words) for i in range(len(tagged_data))]
+    return embedding
+
+def prep_sentence_embedding(name,source, sentence, sentiment, sort_order,embed_model,idx,type="single"):
     """ Prepare a custom sentence to add to the embedding"""
-    #get vector embedding
-    tagged_data = TaggedDocument(words=word_tokenize(sentence.lower()), tags=['source'])
-    vector = embed_model.infer_vector(tagged_data.words)
+    
+    
+    if type == "single":
+        #get vector embedding
+        tagged_data = TaggedDocument(words=word_tokenize(sentence.lower()), tags=['source'])
+        vector = embed_model.infer_vector(tagged_data.words)
 
-    tmp = {
-        'source': source,
-        'name': name,
-        'sort_order': sort_order,
-        'sentence': sentence,
-        'sentiment': sentiment,
-        'x': vector[0],
-        'y':vector[1]
-    }
+        tmp = {
+            'source': source,
+            'name': name,
+            'sort_order': sort_order,
+            'sentence': sentence,
+            'sentiment': sentiment,
+            'x': vector[0],
+            'y':vector[1]
+        }
 
-    return(pd.DataFrame(tmp,index=[idx]))
+        return(pd.DataFrame(tmp,index=[idx]))
+    else:
+        #go through each group and add 
+        df = {"source":[],
+            "name":[],
+            "sentence":[],
+            "sentiment":[],
+            "x":[],
+            "y":[],
+            "sort_order":[]
+        }
+
+
+        slice_short = sentence
+        slice_sentiment = sentiment
+        vec_embedding = prep_embed_data(sentence,embed_model)
+
+        df['source'] = df['source'] + [source]*len(slice_short)
+        df['name'] = df['name'] + [name]*len(slice_short)
+
+        #the sort order effects how its drawn by altair
+        df['sort_order'] = df['sort_order'] + [sort_order]*len(slice_short)
+
+        #add individual elements
+        for i in range(len(slice_short)):
+            df['sentence'].append(slice_short[i])
+            df['sentiment'].append(slice_sentiment[i])
+            df['x'].append(vec_embedding[i][0])
+            df['y'].append(vec_embedding[i][1])
+
+        df = pd.DataFrame(df) 
+        return(df)      
+
 

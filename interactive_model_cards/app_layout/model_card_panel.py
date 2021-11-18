@@ -1,15 +1,16 @@
 import streamlit as st
 import base64
 
-def model_card_panel(model_card):
+def model_card_panel(model_card, errors):
     """ Writing Model card in the sidebar"""
+
     # model card side panel
     for key in model_card.keys():
         item = model_card[key]
         
         st.sidebar.markdown(f"<h3>{model_card[key]['name']}</h3>", unsafe_allow_html=True)
        
-        if "warning" in model_card[key].keys():
+        if "warning" in model_card[key].keys() and errors:
             #st.sidebar.error(model_card[key]["warning"])
             st.sidebar.markdown(
                 f"""

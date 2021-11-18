@@ -19,7 +19,7 @@ def perf_interact(type="model perf",min_size=0):
         st.markdown(
             f"""
             <span>
-                <img src="data:image/png;base64,{base64.b64encode(open("./assets/img/warning-black.png", "rb").read()).decode()}"> All subsamples with <strong>fewer than {min_size}</strong> sentences are reporting potentially unreliable results. These are <strong style="color:red">identified with a red border</strong> around the bar.
+                <img src="data:image/png;base64,{base64.b64encode(open("./assets/img/warning-black.png", "rb").read()).decode()}"> All subpopulations with <strong>fewer than {min_size}</strong> sentences are reporting potentially unreliable results. These are <strong style="color:red">identified with a red border</strong> around the bar.
             </span>
             """,
             unsafe_allow_html=True
@@ -48,8 +48,8 @@ def perf_interact(type="model perf",min_size=0):
         )
 
         st.write("* You can `zoom in and out` of the visualization")
-        st.write(" * You can `hover` over a data point to see the sentence and sentiment")
-        st.write(" *  You can `click on the legend` to emphasize subpopulations in the data according to positive of negative sentiment.")
+        st.write("* You can `hover` over a data point to see the sentence and sentiment")
+        st.write("*  You can `click on the legend` to emphasize subpopulations in the data according to positive of negative sentiment.")
 
         
 
@@ -66,7 +66,7 @@ def quant_panel(sst_db, embedding, col,data_view):
             st.markdown(" * Performance is shown for the training and testing set, as well as special groups within this dataset that have been automatically associated with US protected groups")
         
 
-            min_size = st.number_input("Minimal Sample Size:", value=100, min_value=30, max_value=10000)
+            min_size = st.number_input("Flag (with a red border) subpopulations with fewer than the follow sentences:", value=100, min_value=30, max_value=10000)
             
             perf_interact(type="model perf",min_size=min_size)
 

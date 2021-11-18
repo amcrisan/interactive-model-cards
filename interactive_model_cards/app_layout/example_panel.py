@@ -192,58 +192,65 @@ def example_sentence(sentence_examples, model,doc2vec):
                     st.session_state["embedding"] = embedding.append(tmp)
 
 # ***** DEFINTING CUSTOM SUBGROUPS *******
-def subpopulation_slice(sst_db):
+def subpopulation_slice(sst_db,doc2vec):
     with st.form(key="subpop_form"):
         st.markdown("Define you subpopulation")
         user_terms = st.text_input(
             "Enter a set of comma separated words", "comedy, hilarious, clown"
         )
         slice_choice = st.selectbox(
-            "Choose Data Source", ["Training Data", "Test Data"]
+            "Choose Data Source", ["Training Data", "Evaluation Data"]
         )
         slice_name = st.text_input(
-            "Give your subpopulation a name", "supbob_1", key="custom_slice_name"
+            "Give your subpopulation a name", "subpop_1", key="custom_slice_name"
         )
         if st.form_submit_button("Create Subpopulation"):
             # build a new slice
-            #
             user_terms = [x.strip() for x in user_terms.split(",")]
             slice_builder = rg.HasAnyPhrase([user_terms], identifiers=[slice_name])
        
-
             # on test data
-            if slice_choice == "Training Data":
-                slice_ids = ut.get_sliceid(list(sst_db.slices))
+            slice_ids = ut.get_sliceid(list(sst_db.slices))
+            if slice_choice == "Training  Data":
+                #st.write("returning training data")
                 idx = ut.get_sliceidx(slice_ids,"xyz_train")
-                sst_db(slice_builder, list(sst_db.slices)[idx], ["sentence"])
+            else:
+                #st.write("returning evaluation data")
+                idx = ut.get_sliceidx(slice_ids,"xyz_test")
+            
+            sst_db(slice_builder, list(sst_db.slices)[idx], ["sentence"])
 
             #get store slice name
             slice_ids = ut.get_sliceid(list(sst_db.slices))
-            slice_name = [elem for i, elem in enumerate(slice_ids) if slice_name in str(elem)]
+            slice_idx= [i for i, elem in enumerate(slice_ids) if slice_name in str(elem)][0]
+            slice_rg_name = [elem for i, elem in enumerate(slice_ids) if slice_name in str(elem)]
             
+            slice_data = list(sst_db.slices)[slice_idx]
+            
+
             # updating the the selected slice
             st.session_state["selected_slice"] = {
-                    'name': slice_name[0],
+                    'name': slice_rg_name[0],
                     'source': 'Custom Slice',
                 }
         
             #storing the slice terms
-            st.session_state["slice_terms"] = {slice_name[0]: user_terms}
+            st.session_state["slice_terms"][slice_rg_name[0]] = user_terms
 
             #adding slice to embedding
             #update the sentence with an embedding
 
-            #embedding = st.session_state["embedding"]
-            #tmp = ut.prep_sentence_embedding(name ='Your Sentences',
-            #    source = 'User Custom Sentence',
-            #    sentence = user_text,
-            #    sentiment= user_lab,
-            #    sort_order=5,
-            #    embed_model = doc2vec,
-            #    idx = max(embedding.index)+1)
+            embedding = st.session_state["embedding"]
+            tmp = ut.prep_sentence_embedding(name = slice_name,
+                source = "Custom Slice",
+                sentence = slice_data['sentence'],
+                sentiment= ["Positive Sentiment" if int(round(x)) == 1 else "Negative Sentiment" for x in slice_data["label"]],
+                sort_order=5,
+                embed_model = doc2vec,
+                idx = max(embedding.index)+1,
+                type="multi")
 
-            #st.session_state["embedding"] = embedding.append(tmp)
-
+            st.session_state["embedding"] = embedding.append(tmp)
 
             return slice_name
 
@@ -296,15 +303,15 @@ def example_panel(sentence_examples, model, sst_db,doc2vec):
         "3. **Add your own dataset** : Upload your own (small) dataset from a csv file"
     )
     '''
-    st.markdown("Modify the quantitative analysis results by defining your own subpopulations in the data, or adding your own data by adding your own sentences or dataset.")
+    st.markdown("Modify the quantitative analysis results by defining your own subpopulations in the data, including your own data by adding your own sentences or dataset.")
 
     with st.expander("Explore new subpopulations in model data"):
             # create slice
-            slice_terms = subpopulation_slice(sst_db)
+            slice_terms = subpopulation_slice(sst_db,doc2vec)
 
             # visualize slice
             slice_name = st.session_state["custom_slice_name"]
-            # slice_vis(slice_terms,sst_db,slice_name)
+
     with st.expander("Explore with your own sentences"):
         # adding a column for user text input
         example_sentence(sentence_examples, model,doc2vec)

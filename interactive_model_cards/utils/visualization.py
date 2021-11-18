@@ -140,8 +140,8 @@ def data_comparison(df):
     #input_dropdown = alt.binding_select(options=['Negative Sentiment','Positive Sentiment'])
     selection = alt.selection_multi(fields=['name','sentiment'])
 
-    pop_domain = ["Overall Performance","Custom Slice","User Custom Sentence","US Protected Class"]
-    color_range = ["#5778a4", "#e49444", "#b8b0ac","#85b6b2"]
+    #pop_domain = ["Overall Performance","Custom Slice","User Custom Sentence","US Protected Class"]
+    #color_range = ["#5778a4", "#e49444", "#b8b0ac","#85b6b2",""]
 
     #highlight colors on select
     color = alt.condition(selection,
