@@ -66,7 +66,7 @@ def down_samp(embedding):
     #but keep the proportional representation of groups
     down_samp = 1/(sum(max_sample)/(5000-user_data))
 
-    max_samp = floor(max_sample*down_samp).astype(int).to_dict()
+    max_samp = max_sample.apply(lambda x: floor(x*down_samp)).astype(int).to_dict()
     max_samp['Your Sentences'] = user_data
 
     #sample down for each group in the data frame
